@@ -305,9 +305,51 @@ Values      : 120  (34 VARIABLE_ALIAS + 39 COLOR + 40 FLOAT + 7 STRING)
 
 ---
 
-## Phase 7 — Two-way Sync
+## Phase 7 — Two-way Sync + Contribution Flow
 **Branch:** `phase-7-sync`
-**Status:** ⏳ Pending
+**Date:** 2026-05-12
+**Status:** ✅ Complete
+
+### What was built
+
+| Path | Description |
+|---|---|
+| `packages/tokens/scripts/figma-push.mjs` | **`--update` flag**: fetches existing Figma Variables via `GET /v1/files/:key/variables/local`, builds col/mode/var lookup tables, then `resolvePayloadIds()` replaces temp IDs with real Figma IDs and converts `CREATE` → `UPDATE` for existing entities. Safe to re-run on any push. |
+| `packages/tokens/scripts/token-diff.mjs` | Flattens two token JSON files and computes added/changed/removed token values. Outputs a Markdown table with colour swatches. Called by `token-pr.yml`. |
+| `packages/tokens/package.json` | Added `figma:update` and `token-diff` scripts. |
+| `.github/workflows/figma-sync.yml` | Updated to use `figma:update` (idempotent `--update` flag). |
+| `.github/workflows/ci.yml` | **New** — PR validation pipeline: `tokens:build` → dist stale check → `pnpm build` → `pnpm test` → `build-storybook` → changeset check → Storybook artifact upload (7-day retention). |
+| `.github/workflows/token-pr.yml` | **New** — Token PR review: triggers on any PR touching `tokens/lingua-tokens.json`. Saves base version, runs `pnpm tokens:build`, calls `token-diff.mjs`, posts (or updates) a colour-swatch diff table as a PR comment. |
+| `CONTRIBUTING.md` | Full contribution guide: token change (Path A + B), adding a component (checklist), changeset rules, PR template, branch naming, weekly release process. |
+| `docs/branch-protection.md` | `gh api` commands to lock `main` with required status checks. Covers `design/*` branch protection for Tokens Studio PRs. Full two-way loop description. |
+
+### Two-way sync loop (complete)
+```
+Figma token edit
+  → Tokens Studio push → PR on design/token-*
+  → token-pr.yml: colour-swatch diff comment
+  → ci.yml: build + tests + changeset check
+  → Merge → main
+  → docs.yml: deploy docs + Storybook
+  → figma-sync.yml: idempotent push back to Figma (--update)
+```
+Target: < 5 minutes from Figma edit to live on GitHub Pages.
+
+### Idempotency (--update flag)
+`resolvePayloadIds()` post-processes the payload:
+- Fetches `GET /variables/local` → builds `colByName` + `varByKey` maps
+- Replaces temp IDs with real Figma IDs
+- Sets `action: 'UPDATE'` for existing entities (collections, modes, variables, values)
+- `VARIABLE_ALIAS` targets also resolved to real IDs
+- New entities stay `action: 'CREATE'` with temp IDs
+
+### What CI requires on every PR (branch protection)
+1. `pnpm tokens:build` passes
+2. `git diff --exit-code packages/tokens/dist` — dist must be committed
+3. `pnpm build` (all packages)
+4. `pnpm test` (packages/react, 11 tests)
+5. `pnpm build-storybook` (no broken imports)
+6. Changeset entry present (if packages/ touched)
 
 ---
 

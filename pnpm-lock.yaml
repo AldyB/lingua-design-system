@@ -21,6 +21,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/tokens
 
+  packages/figma-plugin: {}
+
   packages/icons: {}
 
   packages/react:

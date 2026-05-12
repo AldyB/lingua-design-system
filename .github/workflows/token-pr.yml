@@ -1,0 +1,92 @@
+name: Token PR Review
+
+# Triggered on PRs that touch the canonical token source.
+# Covers both developer edits AND Tokens Studio plugin pushes (design → code).
+
+on:
+  pull_request:
+    paths:
+      - "tokens/lingua-tokens.json"
+
+permissions:
+  contents:      read
+  pull-requests: write   # needed to post the diff comment
+
+jobs:
+  token-diff:
+    name: Post token diff comment
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch base branch so we can diff against it
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Save the base version of the token file for diffing
+      - name: Export base token file
+        run: |
+          git show origin/${{ github.base_ref }}:tokens/lingua-tokens.json \
+            > /tmp/tokens-before.json || echo '{}' > /tmp/tokens-before.json
+
+      # Rebuild token pipeline to verify it's valid
+      - name: Build @lingua/tokens
+        run: pnpm tokens:build
+
+      # Compute the diff and capture it
+      - name: Compute token diff
+        id: diff
+        run: |
+          DIFF=$(node packages/tokens/scripts/token-diff.mjs \
+            /tmp/tokens-before.json \
+            tokens/lingua-tokens.json)
+          # Write to file (avoids shell quoting issues with large strings)
+          echo "$DIFF" > /tmp/token-diff.md
+          echo "has_diff=true" >> "$GITHUB_OUTPUT"
+
+      # Post (or update) a PR comment with the diff table
+      - name: Post diff comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const diff = fs.readFileSync('/tmp/token-diff.md', 'utf8');
+
+            const marker = '<!-- lingua-token-diff -->';
+            const body   = `${marker}\n${diff}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            // Update existing comment or create new one
+            const existing = comments.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

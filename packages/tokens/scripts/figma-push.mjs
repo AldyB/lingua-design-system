@@ -1,25 +1,29 @@
 /**
  * figma-push.mjs — Lingua DS → Figma Variables (Path B)
  *
- * Reads tokens/lingua-tokens.json and POSTs to the Figma Variables REST API,
- * creating 5 variable collections that mirror the token structure exactly.
+ * Reads tokens/lingua-tokens.json and POSTs to the Figma Variables REST API.
+ *
+ * Phase 7: --update flag enables GET → diff → UPDATE for safe re-runs.
  *
  * Usage:
  *   FIGMA_FILE_KEY=<key> FIGMA_ACCESS_TOKEN=<token> node scripts/figma-push.mjs
- *   node scripts/figma-push.mjs --dry-run          # preview payload, no API call
- *   node scripts/figma-push.mjs --save-payload      # write payload.json to disk
+ *   node scripts/figma-push.mjs --update       # idempotent: GET existing → diff → UPDATE
+ *   node scripts/figma-push.mjs --dry-run      # preview payload, no API call
+ *   node scripts/figma-push.mjs --save-payload # write payload.json to disk
  *
  * Requires: Node 18+ (native fetch), Figma Professional plan (Variables API)
  *
- * Collections created:
+ * Collections:
  *   🎨 Lingua / Global Palette  — primitive COLOR vars (single mode)
  *   🌗 Lingua / Semantic Color  — semantic COLOR vars (Light + Dark modes, with aliases)
  *   📐 Lingua / Size            — spacing, radius, fontSize, fontWeight, lineHeight (FLOAT)
  *   ✨ Lingua / Motion          — duration (FLOAT ms) + easing (STRING)
  *   🔤 Lingua / Typography      — font-family (STRING, first font in stack)
  *
- * Phase 7 will add a GET → diff → UPDATE cycle for idempotency.
- * For now, run against a fresh Figma file (or clear Variables before re-running).
+ * Idempotency (--update):
+ *   First run — CREATE everything (use on fresh Figma file).
+ *   Re-runs   — GET existing, resolve real Figma IDs, use UPDATE for existing
+ *               and CREATE for new. Safe to run on every CI push.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -31,10 +35,11 @@ const ROOT_TOKENS = resolve(__dirname, '../../../tokens/lingua-tokens.json');
 
 // ─── CLI / env ────────────────────────────────────────────────────────────────
 
-const FILE_KEY    = process.env.FIGMA_FILE_KEY;
-const TOKEN       = process.env.FIGMA_ACCESS_TOKEN;
-const DRY_RUN     = process.argv.includes('--dry-run');
-const SAVE        = process.argv.includes('--save-payload');
+const FILE_KEY     = process.env.FIGMA_FILE_KEY;
+const TOKEN        = process.env.FIGMA_ACCESS_TOKEN;
+const DRY_RUN      = process.argv.includes('--dry-run');
+const SAVE         = process.argv.includes('--save-payload');
+const UPDATE_MODE  = process.argv.includes('--update');
 
 if (!FILE_KEY && !DRY_RUN && !SAVE) {
   console.error('Error: FIGMA_FILE_KEY env var is required (or use --dry-run)');
@@ -91,6 +96,92 @@ function flatten(obj, prefix = '') {
 
 /** Stable temp ID — Figma resolves these within a single POST transaction. */
 const vid = (path) => `var:${path}`;
+
+// ─── Figma existing-state fetch (--update mode) ───────────────────────────────
+
+/**
+ * GET /v1/files/:key/variables/local and build lookup tables.
+ * Returns { colByName, varByKey, modeByKey } for id resolution.
+ *
+ * colByName:  "🎨 Lingua / Global Palette" → { id, modes: { "Global" → modeId } }
+ * varByKey:   "collectionId/varName"         → real Figma variable ID
+ */
+async function fetchExistingState() {
+  const res = await fetch(
+    `https://api.figma.com/v1/files/${FILE_KEY}/variables/local`,
+    { headers: { 'X-Figma-Token': TOKEN } }
+  );
+  if (!res.ok) {
+    throw new Error(`GET variables/local failed: ${res.status} ${await res.text()}`);
+  }
+  const { meta } = await res.json();
+  const cols = meta?.variableCollections ?? {};
+  const vars = meta?.variables          ?? {};
+
+  const colByName = {};
+  for (const [id, col] of Object.entries(cols)) {
+    colByName[col.name] = {
+      id,
+      modes: Object.fromEntries((col.modes ?? []).map(m => [m.name, m.modeId])),
+    };
+  }
+
+  const varByKey = {};
+  for (const [id, v] of Object.entries(vars)) {
+    const colName = cols[v.variableCollectionId]?.name;
+    if (colName) varByKey[`${colName}/${v.name}`] = id;
+  }
+
+  return { colByName, varByKey };
+}
+
+/**
+ * Resolve a collection definition to the right action + real/temp id.
+ * In UPDATE mode, existing collections use their real Figma id.
+ */
+function resolveCollection(name, tempId, initialModeId, existing) {
+  if (!existing) return { action: 'CREATE', id: tempId, initialModeId };
+  const found = existing.colByName[name];
+  return found
+    ? { action: 'UPDATE', id: found.id }           // UPDATE: no initialModeId needed
+    : { action: 'CREATE', id: tempId, initialModeId };
+}
+
+/**
+ * Resolve a mode definition to action + real/temp id.
+ */
+function resolveMode(colName, modeName, tempId, colId, existing) {
+  if (!existing) return { action: 'CREATE', id: tempId, name: modeName, variableCollectionId: colId };
+  const col   = existing.colByName[colName];
+  const modeId = col?.modes[modeName];
+  const realColId = col?.id ?? colId;
+  return modeId
+    ? { action: 'UPDATE', id: modeId, name: modeName, variableCollectionId: realColId }
+    : { action: 'CREATE', id: tempId, name: modeName, variableCollectionId: realColId };
+}
+
+/**
+ * Resolve a variable definition to action + real/temp id.
+ */
+function resolveVar(colName, varName, tempVarId, colId, resolvedType, scopes, desc, existing) {
+  if (!existing) return {
+    action: 'CREATE', id: tempVarId, name: varName,
+    variableCollectionId: colId, resolvedType, scopes, description: desc,
+  };
+  const col    = existing.colByName[colName];
+  const realColId = col?.id ?? colId;
+  const realVarId = existing.varByKey[`${colName}/${varName}`];
+  return realVarId
+    ? { action: 'UPDATE', id: realVarId, name: varName, variableCollectionId: realColId, resolvedType, scopes, description: desc }
+    : { action: 'CREATE', id: tempVarId, name: varName, variableCollectionId: realColId, resolvedType, scopes, description: desc };
+}
+
+/**
+ * Resolve the action for a variable value (CREATE for new vars, UPDATE for existing).
+ */
+function resolveValueAction(varDef) {
+  return varDef.action === 'UPDATE' ? 'UPDATE' : 'CREATE';
+}
 
 // ─── Load tokens ──────────────────────────────────────────────────────────────
 
@@ -280,27 +371,152 @@ for (const token of fontFamilyTokens) {
   variableValues.push({ action: 'CREATE', variableId: vid(token.path), modeId: 'mode:type:default', value: firstFont });
 }
 
-// ─── Payload ──────────────────────────────────────────────────────────────────
+// ─── Resolve real Figma IDs (--update mode) ──────────────────────────────────
 
-const payload = { variableCollections, variableModes, variables, variableValues };
+/**
+ * Post-processes a CREATE payload to replace temp IDs with real Figma IDs
+ * for entities that already exist. Non-existing entities keep CREATE + temp ID.
+ *
+ * The payload is generated with temp IDs first (fast, no network), then
+ * this function replaces them after fetching existing state (--update only).
+ */
+function resolvePayloadIds(p, existing) {
+  if (!existing) return p;
+
+  const { colByName, varByKey } = existing;
+
+  // ── Map temp → real for collections ──────────────────────────────────────
+  const COLS = [
+    { temp: 'col:palette',  name: '🎨 Lingua / Global Palette'  },
+    { temp: 'col:semantic', name: '🌗 Lingua / Semantic Color'   },
+    { temp: 'col:size',     name: '📐 Lingua / Size'             },
+    { temp: 'col:motion',   name: '✨ Lingua / Motion'           },
+    { temp: 'col:type',     name: '🔤 Lingua / Typography'       },
+  ];
+
+  const colIdMap  = {};   // tempId  → realColId
+  const modeIdMap = {};   // tempId  → realModeId
+  const varIdMap  = {};   // tempVarId → realVarId
+
+  for (const { temp, name } of COLS) {
+    const found = colByName[name];
+    if (found) colIdMap[temp] = found.id;
+  }
+
+  // ── Modes: use real IDs from collection's mode list ────────────────────
+  const MODE_DEFS = [
+    { temp: 'mode:palette:global',  col: 'col:palette',  name: 'Global'  },
+    { temp: 'mode:semantic:light',  col: 'col:semantic', name: 'Light'   },
+    { temp: 'mode:semantic:dark',   col: 'col:semantic', name: 'Dark'    },
+    { temp: 'mode:size:default',    col: 'col:size',     name: 'Default' },
+    { temp: 'mode:motion:default',  col: 'col:motion',   name: 'Default' },
+    { temp: 'mode:type:default',    col: 'col:type',     name: 'Default' },
+  ];
+
+  for (const { temp, col, name } of MODE_DEFS) {
+    const colName   = COLS.find(c => c.temp === col)?.name;
+    const modeId    = colByName[colName]?.modes[name];
+    if (modeId) modeIdMap[temp] = modeId;
+  }
+
+  // ── Variables: match by collection name + variable name ─────────────────
+  for (const v of p.variables) {
+    const colDef  = COLS.find(c => c.temp === v.variableCollectionId);
+    if (!colDef) continue;
+    const realId  = varByKey[`${colDef.name}/${v.name}`];
+    if (realId)  varIdMap[v.id] = realId;
+  }
+
+  // ── Rebuild with resolved IDs ────────────────────────────────────────────
+  const resolveColId  = (id) => colIdMap[id]  ?? id;
+  const resolveModeId = (id) => modeIdMap[id] ?? id;
+  const resolveVarId  = (id) => varIdMap[id]  ?? id;
+
+  const resolvedCollections = p.variableCollections.map(c => {
+    const realId = colIdMap[c.id];
+    return realId
+      ? { action: 'UPDATE', id: realId, name: c.name }
+      : c;
+  });
+
+  const resolvedModes = p.variableModes.map(m => {
+    const realId    = modeIdMap[m.id];
+    const realColId = resolveColId(m.variableCollectionId);
+    return realId
+      ? { action: 'UPDATE', id: realId, name: m.name, variableCollectionId: realColId }
+      : { ...m, variableCollectionId: realColId };
+  });
+
+  const resolvedVariables = p.variables.map(v => {
+    const realId    = varIdMap[v.id];
+    const realColId = resolveColId(v.variableCollectionId);
+    return realId
+      ? { ...v, action: 'UPDATE', id: realId, variableCollectionId: realColId }
+      : { ...v, variableCollectionId: realColId };
+  });
+
+  const resolvedValues = p.variableValues.map(val => {
+    const realVarId  = resolveVarId(val.variableId);
+    const realModeId = resolveModeId(val.modeId);
+    const action     = varIdMap[val.variableId] ? 'UPDATE' : val.action;
+    let value        = val.value;
+    // Resolve VARIABLE_ALIAS target to its real ID
+    if (value?.type === 'VARIABLE_ALIAS') {
+      value = { ...value, id: resolveVarId(value.id) };
+    }
+    return { action, variableId: realVarId, modeId: realModeId, value };
+  });
+
+  return {
+    variableCollections: resolvedCollections,
+    variableModes:       resolvedModes,
+    variables:           resolvedVariables,
+    variableValues:      resolvedValues,
+  };
+}
+
+// ─── Build + optionally resolve payload ───────────────────────────────────────
+
+let basePayload = { variableCollections, variableModes, variables, variableValues };
+
+// Fetch existing state in --update mode (safe to re-run after first push)
+let existingState = null;
+if (UPDATE_MODE && !DRY_RUN && !SAVE) {
+  console.log('Fetching existing Figma Variables (--update mode)…');
+  existingState = await fetchExistingState();
+  const existingVarCount = Object.keys(existingState.varByKey).length;
+  const existingColCount = Object.keys(existingState.colByName).length;
+  console.log(`  Found ${existingColCount} collections, ${existingVarCount} variables`);
+}
+
+const payload = resolvePayloadIds(basePayload, existingState);
+
+// Count CREATE vs UPDATE actions
+const creates = payload.variables.filter(v => v.action === 'CREATE').length;
+const updates = payload.variables.filter(v => v.action === 'UPDATE').length;
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
+console.log('\nLingua DS → Figma Variables\n' + '─'.repeat(40));
+if (UPDATE_MODE) {
+  console.log(`Mode        : UPDATE (idempotent — ${creates} new, ${updates} existing)`);
+} else {
+  console.log(`Mode        : CREATE (use on fresh Figma file)`);
+}
+console.log(`Collections : ${payload.variableCollections.length}`);
+console.log(`Modes       : ${payload.variableModes.length}`);
+console.log(`Variables   : ${payload.variables.length}`);
+console.log(`Values      : ${payload.variableValues.length}`);
+console.log('');
+
 const varsByCollection = {};
-for (const v of variables) {
+for (const v of payload.variables) {
   varsByCollection[v.variableCollectionId] = (varsByCollection[v.variableCollectionId] || 0) + 1;
 }
-
-console.log('\nLingua DS → Figma Variables\n' + '─'.repeat(40));
-console.log(`Collections : ${variableCollections.length}`);
-console.log(`Modes       : ${variableModes.length}`);
-console.log(`Variables   : ${variables.length}`);
-console.log(`Values      : ${variableValues.length}`);
-console.log('');
 console.log('By collection:');
 for (const [colId, count] of Object.entries(varsByCollection)) {
-  const col = variableCollections.find(c => c.id === colId);
-  console.log(`  ${col?.name.padEnd(30)} ${count} variables`);
+  const col = payload.variableCollections.find(c => c.id === colId);
+  console.log(`  ${(col?.name ?? colId).padEnd(32)} ${count} variables`);
 }
 console.log('');
 
@@ -315,9 +531,9 @@ if (SAVE) {
 // ─── Dry run ──────────────────────────────────────────────────────────────────
 
 if (DRY_RUN) {
-  console.log('[--dry-run] No API call made. First 5 variables:');
-  for (const v of variables.slice(0, 5)) {
-    console.log(`  ${v.id.padEnd(45)} ${v.resolvedType.padEnd(7)} ${v.name}`);
+  console.log(`[--dry-run] No API call made. First 5 variables:`);
+  for (const v of payload.variables.slice(0, 5)) {
+    console.log(`  [${v.action}] ${v.id.slice(0,40).padEnd(42)} ${(v.resolvedType || '').padEnd(7)} ${v.name}`);
   }
   console.log('\n✓ Dry run complete.\n');
   process.exit(0);

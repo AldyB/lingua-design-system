@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate (tokens · build · test · changeset)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch full history so `changeset status --since` can diff against base
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── 1. Token pipeline ────────────────────────────────────────────────────
+      - name: Build @lingua/tokens
+        run: pnpm tokens:build
+
+      - name: Assert token dist is not stale
+        run: |
+          git diff --exit-code packages/tokens/dist || \
+            (echo "::error::packages/tokens/dist is stale. Run 'pnpm tokens:build' and commit the result." && exit 1)
+
+      # ── 2. Full monorepo build ───────────────────────────────────────────────
+      - name: Build all packages
+        run: pnpm build
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+
+      # ── 3. Tests ─────────────────────────────────────────────────────────────
+      - name: Run @lingua/react tests
+        run: pnpm --filter @lingua/react test
+
+      # ── 4. Storybook build (verifies no broken imports) ──────────────────────
+      - name: Build Storybook
+        run: pnpm --filter @lingua/react build-storybook
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+
+      - name: Upload Storybook artifact (PR preview)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-${{ github.event.pull_request.number }}
+          path: packages/react/storybook-static
+          retention-days: 7
+
+      # ── 5. Changeset check ────────────────────────────────────────────────────
+      # Enforces that every PR touching packages/ includes a changeset entry.
+      - name: Check for changeset
+        if: github.event_name == 'pull_request'
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- packages/)
+          if [ -n "$CHANGED" ]; then
+            pnpm changeset status --since=origin/${{ github.base_ref }} || \
+              (echo "::error::This PR touches packages/ but has no changeset. Run 'pnpm changeset' and commit the entry." && exit 1)
+          fi
