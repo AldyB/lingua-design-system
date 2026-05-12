@@ -1,0 +1,625 @@
+/*
+ * @lingua/react — component stylesheet
+ *
+ * All fills reference CSS custom properties from @lingua/tokens.
+ * Consumers must import "@lingua/tokens/css/lingua.light.css" (and optionally
+ * the dark variant) in their app entry before importing this file.
+ *
+ * Usage: import '@lingua/react/styles.css'
+ *
+ * Class prefix: .lds- (Lingua Design System)
+ */
+
+/* ─── Shared base ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ─── Button ─────────────────────────────────────────────────────────────── */
+.lds-btn {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--global-spacing-2, 8px);
+  border:          1px solid transparent;
+  border-radius:   var(--global-border-radius-md, 8px);
+  font-family:     inherit;
+  font-weight:     500;
+  cursor:          pointer;
+  text-decoration: none;
+  white-space:     nowrap;
+  transition:      background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s, filter 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lds-btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.lds-btn:focus-visible {
+  outline:        2px solid var(--color-ring, #818cf8);
+  outline-offset: 2px;
+}
+
+/* sizes */
+.lds-btn--sm { padding: var(--global-spacing-1, 4px) var(--global-spacing-3, 12px); font-size: 13px; line-height: 20px; }
+.lds-btn--md { padding: var(--global-spacing-2, 8px) var(--global-spacing-4, 16px); font-size: 14px; line-height: 20px; }
+.lds-btn--lg { padding: var(--global-spacing-3, 12px) var(--global-spacing-6, 24px); font-size: 16px; line-height: 24px; }
+.lds-btn--icon { border-radius: var(--global-border-radius-lg, 12px); padding: var(--global-spacing-2, 8px); }
+
+/* variants */
+.lds-btn--primary {
+  background: var(--color-primary, #4f46e5);
+  color:      var(--color-primary-fg, #fff);
+}
+.lds-btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
+
+.lds-btn--secondary {
+  background: var(--color-secondary, #f1f5f9);
+  color:      var(--color-secondary-fg, #1e293b);
+}
+.lds-btn--secondary:hover:not(:disabled) { filter: brightness(0.95); }
+
+.lds-btn--ghost {
+  background: transparent;
+  color:      var(--color-foreground, #0f172a);
+}
+.lds-btn--ghost:hover:not(:disabled) { background: var(--color-muted, #f1f5f9); }
+
+.lds-btn--outline {
+  background:    transparent;
+  border-color:  var(--color-border, #e2e8f0);
+  color:         var(--color-foreground, #0f172a);
+}
+.lds-btn--outline:hover:not(:disabled) { background: var(--color-muted, #f1f5f9); }
+
+.lds-btn--destructive {
+  background: var(--color-destructive, #ef4444);
+  color:      var(--color-destructive-fg, #fff);
+}
+.lds-btn--destructive:hover:not(:disabled) { filter: brightness(1.1); }
+
+/* ─── Badge ──────────────────────────────────────────────────────────────── */
+.lds-badge {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           var(--global-spacing-1, 4px);
+  padding:       2px 10px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  font-size:     12px;
+  font-weight:   600;
+  line-height:   18px;
+}
+.lds-badge--default     { background: var(--color-secondary, #f1f5f9); color: var(--color-secondary-fg, #1e293b); }
+.lds-badge--primary     { background: color-mix(in srgb, var(--color-primary, #4f46e5) 12%, transparent); color: var(--color-primary, #4f46e5); }
+.lds-badge--success     { background: color-mix(in srgb, #22c55e 12%, transparent); color: #16a34a; }
+.lds-badge--warning     { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #b45309; }
+.lds-badge--destructive { background: color-mix(in srgb, var(--color-destructive, #ef4444) 12%, transparent); color: var(--color-destructive, #ef4444); }
+
+/* ─── Pill ───────────────────────────────────────────────────────────────── */
+.lds-pill {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           var(--global-spacing-1, 4px);
+  padding:       4px 12px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  font-size:     13px;
+  font-weight:   500;
+  background:    var(--color-muted, #f1f5f9);
+  color:         var(--color-muted-fg, #64748b);
+  border:        1px solid var(--color-border, #e2e8f0);
+}
+
+/* ─── Tag ────────────────────────────────────────────────────────────────── */
+.lds-tag {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       4px 10px 4px 12px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  font-size:     12px;
+  font-weight:   500;
+  background:    var(--color-accent, #eef2ff);
+  color:         var(--color-accent-fg, #4338ca);
+  border:        1px solid color-mix(in srgb, var(--color-primary, #4f46e5) 20%, transparent);
+}
+.lds-tag__remove {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  width:           16px;
+  height:          16px;
+  border-radius:   50%;
+  border:          none;
+  background:      color-mix(in srgb, var(--color-primary, #4f46e5) 15%, transparent);
+  color:           var(--color-accent-fg, #4338ca);
+  cursor:          pointer;
+  font-size:       10px;
+  line-height:     1;
+  padding:         0;
+}
+.lds-tag__remove:hover { background: color-mix(in srgb, var(--color-primary, #4f46e5) 25%, transparent); }
+
+/* ─── Avatar ─────────────────────────────────────────────────────────────── */
+.lds-avatar {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  border-radius:   var(--global-border-radius-full, 9999px);
+  background:      var(--color-muted, #f1f5f9);
+  color:           var(--color-muted-fg, #64748b);
+  font-weight:     600;
+  overflow:        hidden;
+  flex-shrink:     0;
+  border:          1px solid var(--color-border, #e2e8f0);
+}
+.lds-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.lds-avatar--sm { width: 32px; height: 32px; font-size: 13px; }
+.lds-avatar--md { width: 40px; height: 40px; font-size: 15px; }
+.lds-avatar--lg { width: 56px; height: 56px; font-size: 20px; }
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+.lds-card {
+  background:    var(--color-card, #fff);
+  border:        1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--global-border-radius-2xl, 20px);
+  padding:       var(--global-spacing-6, 24px);
+}
+.lds-card--interactive {
+  cursor:     pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.lds-card--interactive:hover {
+  box-shadow:   0 4px 16px -4px rgba(0,0,0,0.12);
+  border-color: color-mix(in srgb, var(--color-primary, #4f46e5) 20%, var(--color-border));
+}
+.lds-card--interactive:focus-visible {
+  outline:        2px solid var(--color-ring, #818cf8);
+  outline-offset: 2px;
+}
+
+/* ─── Sheet ──────────────────────────────────────────────────────────────── */
+.lds-sheet-backdrop {
+  position:   fixed;
+  inset:      0;
+  z-index:    100;
+  background: rgba(0,0,0,0.45);
+  animation:  lds-fade-in 0.2s ease;
+}
+.lds-sheet {
+  position:      fixed;
+  bottom:        0;
+  left:          0;
+  right:         0;
+  z-index:       101;
+  background:    var(--color-card, #fff);
+  border-radius: var(--global-border-radius-2xl, 20px) var(--global-border-radius-2xl, 20px) 0 0;
+  padding:       var(--global-spacing-2, 8px) var(--global-spacing-6, 24px) var(--global-spacing-10, 40px);
+  animation:     lds-slide-up 0.25s ease;
+  max-height:    85vh;
+  overflow-y:    auto;
+}
+.lds-sheet__handle {
+  width:         36px;
+  height:        4px;
+  border-radius: 2px;
+  background:    var(--color-muted-fg, #64748b);
+  opacity:       0.3;
+  margin:        0 auto var(--global-spacing-4, 16px);
+}
+.lds-sheet__title { font-size: 18px; font-weight: 700; color: var(--color-foreground); margin-bottom: var(--global-spacing-2, 8px); }
+
+@keyframes lds-fade-in  { from { opacity: 0; }              to { opacity: 1; }              }
+@keyframes lds-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* ─── TextField ──────────────────────────────────────────────────────────── */
+.lds-field { display: flex; flex-direction: column; gap: var(--global-spacing-1, 4px); }
+.lds-field__label { font-size: 14px; font-weight: 500; color: var(--color-foreground); }
+.lds-field__input {
+  width:         100%;
+  padding:       var(--global-spacing-2, 8px) var(--global-spacing-3, 12px);
+  border:        1px solid var(--color-input, #e2e8f0);
+  border-radius: var(--global-border-radius-md, 8px);
+  background:    var(--color-background, #f8fafc);
+  color:         var(--color-foreground, #0f172a);
+  font-size:     14px;
+  font-family:   inherit;
+  outline:       none;
+  transition:    border-color 0.15s, box-shadow 0.15s;
+}
+.lds-field__input:focus {
+  border-color: var(--color-ring, #818cf8);
+  box-shadow:   0 0 0 3px color-mix(in srgb, var(--color-ring, #818cf8) 15%, transparent);
+}
+.lds-field__input::placeholder { color: var(--color-muted-fg, #64748b); }
+.lds-field__input--error { border-color: var(--color-destructive, #ef4444); }
+.lds-field__hint  { font-size: 12px; color: var(--color-muted-fg, #64748b); }
+.lds-field__error { font-size: 12px; color: var(--color-destructive, #ef4444); }
+
+/* ─── Select ─────────────────────────────────────────────────────────────── */
+.lds-select {
+  width:         100%;
+  appearance:    none;
+  padding:       var(--global-spacing-2, 8px) var(--global-spacing-8, 32px) var(--global-spacing-2, 8px) var(--global-spacing-3, 12px);
+  border:        1px solid var(--color-input, #e2e8f0);
+  border-radius: var(--global-border-radius-md, 8px);
+  background:    var(--color-background, #f8fafc)
+                 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+                 no-repeat right 12px center;
+  color:         var(--color-foreground, #0f172a);
+  font-size:     14px;
+  font-family:   inherit;
+  cursor:        pointer;
+}
+.lds-select:focus { outline: 2px solid var(--color-ring, #818cf8); outline-offset: 1px; }
+
+/* ─── Checkbox ───────────────────────────────────────────────────────────── */
+.lds-checkbox {
+  display:     flex;
+  align-items: center;
+  gap:         var(--global-spacing-2, 8px);
+  cursor:      pointer;
+  user-select: none;
+}
+.lds-checkbox input[type="checkbox"] {
+  width:        16px;
+  height:       16px;
+  border-radius: 4px;
+  accent-color: var(--color-primary, #4f46e5);
+  cursor:       pointer;
+  flex-shrink:  0;
+}
+.lds-checkbox__label { font-size: 14px; color: var(--color-foreground); }
+
+/* ─── RadioGroup ─────────────────────────────────────────────────────────── */
+.lds-radio-group { display: flex; flex-direction: column; gap: var(--global-spacing-2, 8px); }
+.lds-radio {
+  display:     flex;
+  align-items: center;
+  gap:         var(--global-spacing-2, 8px);
+  cursor:      pointer;
+  user-select: none;
+}
+.lds-radio input[type="radio"] {
+  width:        16px;
+  height:       16px;
+  accent-color: var(--color-primary, #4f46e5);
+  cursor:       pointer;
+  flex-shrink:  0;
+}
+.lds-radio__label { font-size: 14px; color: var(--color-foreground); }
+
+/* ─── Switch ─────────────────────────────────────────────────────────────── */
+.lds-switch { display: flex; align-items: center; gap: var(--global-spacing-3, 12px); cursor: pointer; user-select: none; }
+.lds-switch__track {
+  position:      relative;
+  width:         44px;
+  height:        24px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  background:    var(--color-muted, #f1f5f9);
+  border:        1px solid var(--color-border, #e2e8f0);
+  transition:    background 0.2s, border-color 0.2s;
+  flex-shrink:   0;
+}
+.lds-switch__track--on { background: var(--color-primary, #4f46e5); border-color: var(--color-primary, #4f46e5); }
+.lds-switch__thumb {
+  position:      absolute;
+  top:           2px;
+  left:          2px;
+  width:         18px;
+  height:        18px;
+  border-radius: 50%;
+  background:    #fff;
+  box-shadow:    0 1px 3px rgba(0,0,0,0.2);
+  transition:    transform 0.2s;
+}
+.lds-switch__track--on .lds-switch__thumb { transform: translateX(20px); }
+.lds-switch__label { font-size: 14px; color: var(--color-foreground); }
+
+/* ─── ProgressBar ────────────────────────────────────────────────────────── */
+.lds-progress {
+  width:         100%;
+  height:        8px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  background:    var(--color-muted, #f1f5f9);
+  overflow:      hidden;
+}
+.lds-progress--sm { height: 4px; }
+.lds-progress--lg { height: 12px; }
+.lds-progress__fill {
+  height:        100%;
+  border-radius: var(--global-border-radius-full, 9999px);
+  background:    var(--color-primary, #4f46e5);
+  transition:    width 0.4s ease;
+  min-width:     4px;
+}
+.lds-progress__fill--success { background: #22c55e; }
+.lds-progress__fill--warning { background: #f59e0b; }
+
+/* ─── Spinner ────────────────────────────────────────────────────────────── */
+.lds-spinner {
+  display:       inline-block;
+  border-radius: 50%;
+  border:        2px solid var(--color-muted, #f1f5f9);
+  border-top-color: var(--color-primary, #4f46e5);
+  animation:     lds-spin 0.65s linear infinite;
+  flex-shrink:   0;
+}
+.lds-spinner--sm { width: 16px; height: 16px; }
+.lds-spinner--md { width: 24px; height: 24px; }
+.lds-spinner--lg { width: 36px; height: 36px; border-width: 3px; }
+@keyframes lds-spin { to { transform: rotate(360deg); } }
+
+/* ─── Toast ──────────────────────────────────────────────────────────────── */
+.lds-toast {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           var(--global-spacing-3, 12px);
+  padding:       var(--global-spacing-4, 16px);
+  border-radius: var(--global-border-radius-xl, 16px);
+  background:    var(--color-card, #fff);
+  border:        1px solid var(--color-border, #e2e8f0);
+  box-shadow:    0 8px 24px -4px rgba(0,0,0,0.12);
+  max-width:     360px;
+  position:      relative;
+}
+.lds-toast__icon  { flex-shrink: 0; margin-top: 1px; }
+.lds-toast__body  { flex: 1; min-width: 0; }
+.lds-toast__title { font-size: 14px; font-weight: 600; color: var(--color-foreground); }
+.lds-toast__desc  { font-size: 13px; color: var(--color-muted-fg); margin-top: 2px; line-height: 1.4; }
+.lds-toast__close { flex-shrink: 0; cursor: pointer; background: none; border: none; color: var(--color-muted-fg); padding: 0; }
+.lds-toast--success { border-left: 3px solid #22c55e; }
+.lds-toast--error   { border-left: 3px solid var(--color-destructive, #ef4444); }
+.lds-toast--warning { border-left: 3px solid #f59e0b; }
+
+/* ─── BottomNav ──────────────────────────────────────────────────────────── */
+.lds-bottom-nav {
+  display:    flex;
+  height:     64px;
+  background: var(--color-card, #fff);
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  padding:    0 var(--global-spacing-2, 8px);
+}
+.lds-bottom-nav--fixed { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; }
+
+.lds-bottom-nav__item {
+  flex:            1;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             3px;
+  padding:         var(--global-spacing-2, 8px) 0;
+  color:           var(--color-muted-fg, #64748b);
+  font-size:       10px;
+  font-weight:     500;
+  font-family:     inherit;
+  cursor:          pointer;
+  border:          none;
+  background:      none;
+  text-decoration: none;
+  transition:      color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lds-bottom-nav__item:hover,
+.lds-bottom-nav__item[aria-current="page"] { color: var(--color-primary, #4f46e5); }
+
+/* ─── TopBar ─────────────────────────────────────────────────────────────── */
+.lds-topbar {
+  display:        flex;
+  align-items:    center;
+  gap:            var(--global-spacing-3, 12px);
+  padding:        0 var(--global-spacing-4, 16px);
+  height:         56px;
+  background:     var(--color-primary, #4f46e5);
+  color:          var(--color-primary-fg, #fff);
+  border-radius:  0 0 var(--global-border-radius-2xl, 20px) var(--global-border-radius-2xl, 20px);
+}
+.lds-topbar__title   { font-size: 18px; font-weight: 700; flex: 1; }
+.lds-topbar__subtitle { font-size: 13px; opacity: 0.8; margin-top: -2px; }
+.lds-topbar__actions { display: flex; align-items: center; gap: var(--global-spacing-2, 8px); }
+
+/* ─── CategoryChip ───────────────────────────────────────────────────────── */
+.lds-cat-chip {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       4px 10px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  font-size:     12px;
+  font-weight:   600;
+  background:    color-mix(in srgb, var(--lds-cat-color, var(--color-primary, #4f46e5)) 12%, transparent);
+  color:         var(--lds-cat-color, var(--color-primary, #4f46e5));
+  border:        1px solid color-mix(in srgb, var(--lds-cat-color, var(--color-primary, #4f46e5)) 22%, transparent);
+}
+.lds-cat-chip__dot {
+  width:         8px;
+  height:        8px;
+  border-radius: 50%;
+  background:    currentColor;
+  flex-shrink:   0;
+}
+
+/* ─── StreakCounter ──────────────────────────────────────────────────────── */
+.lds-streak {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           var(--global-spacing-1, 4px);
+  padding:       4px 12px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  background:    color-mix(in srgb, #f59e0b 15%, transparent);
+  color:         #b45309;
+  font-size:     14px;
+  font-weight:   700;
+  border:        1px solid color-mix(in srgb, #f59e0b 25%, transparent);
+}
+.lds-streak__count { font-size: 18px; font-weight: 800; }
+.lds-streak__label { font-size: 12px; font-weight: 500; opacity: 0.8; }
+
+/* ─── MasteryMeter ───────────────────────────────────────────────────────── */
+.lds-mastery { display: flex; flex-direction: column; gap: var(--global-spacing-3, 12px); }
+.lds-mastery__bar-track {
+  height:        10px;
+  border-radius: var(--global-border-radius-full, 9999px);
+  background:    var(--color-muted, #f1f5f9);
+  overflow:      hidden;
+}
+.lds-mastery__bar-fill {
+  height:        100%;
+  border-radius: var(--global-border-radius-full, 9999px);
+  background:    linear-gradient(90deg, var(--color-primary, #4f46e5), color-mix(in srgb, var(--color-primary, #4f46e5) 65%, #818cf8));
+  transition:    width 0.5s ease;
+}
+.lds-mastery__slots {
+  display:               grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:                   var(--global-spacing-2, 8px);
+}
+.lds-mastery__slot {
+  padding:       var(--global-spacing-2, 8px) var(--global-spacing-3, 12px);
+  border-radius: var(--global-border-radius-lg, 12px);
+  text-align:    center;
+  border:        1px solid var(--color-border, #e2e8f0);
+  background:    var(--color-card, #fff);
+}
+.lds-mastery__slot-count { font-size: 22px; font-weight: 800; color: var(--color-foreground); }
+.lds-mastery__slot-label { font-size: 11px; color: var(--color-muted-fg); margin-top: 2px; }
+.lds-mastery__slot--mastered  .lds-mastery__slot-count { color: #16a34a; }
+.lds-mastery__slot--learning  .lds-mastery__slot-count { color: #b45309; }
+.lds-mastery__slot--new       .lds-mastery__slot-count { color: var(--color-muted-fg); }
+
+/* ─── Flashcard ──────────────────────────────────────────────────────────── */
+.lds-flashcard { width: 100%; perspective: 1000px; user-select: none; }
+.lds-flashcard__inner {
+  position:       relative;
+  width:          100%;
+  height:         256px;
+  transform-style: preserve-3d;
+  transition:     transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.38s ease;
+  cursor:         grab;
+  will-change:    transform;
+}
+.lds-flashcard__inner:active { cursor: grabbing; }
+.lds-flashcard__inner--flipped { transform: rotateY(180deg); }
+
+.lds-flashcard__face {
+  position:           absolute;
+  inset:              0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius:      var(--global-border-radius-2xl, 20px);
+  display:            flex;
+  flex-direction:     column;
+  align-items:        center;
+  justify-content:    center;
+  padding:            var(--global-spacing-6, 24px);
+  overflow:           hidden;
+}
+.lds-flashcard__face--front {
+  background:  var(--color-card, #fff);
+  border:      1px solid var(--color-border, #e2e8f0);
+  box-shadow:  0 8px 32px -4px rgba(0,0,0,0.18);
+}
+.lds-flashcard__face--back {
+  background:  linear-gradient(135deg, hsl(258 72% 42%) 0%, hsl(240 68% 32%) 100%);
+  box-shadow:  0 8px 32px -4px rgba(0,0,0,0.45);
+  transform:   rotateY(180deg);
+}
+.lds-flashcard__glow {
+  position:      absolute;
+  width:         96px;
+  height:        96px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity:       0.15;
+}
+.lds-flashcard__face--front .lds-flashcard__glow {
+  top: 0; right: 0;
+  background: radial-gradient(circle, hsl(256 80% 65%), transparent 70%);
+  transform:  translate(30%, -30%);
+}
+.lds-flashcard__face--back .lds-flashcard__glow {
+  bottom: 0; left: 0;
+  opacity: 0.3;
+  background: radial-gradient(circle, hsl(216 90% 60%), transparent 70%);
+  transform:  translate(-30%, 30%);
+}
+.lds-flashcard__audio {
+  position:      absolute;
+  top:           12px;
+  right:         12px;
+  width:         32px;
+  height:        32px;
+  border-radius: var(--global-border-radius-xl, 16px);
+  border:        none;
+  background:    transparent;
+  color:         var(--color-muted-fg, #64748b);
+  cursor:        pointer;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  transition:    background 0.15s, color 0.15s;
+}
+.lds-flashcard__audio:hover { background: color-mix(in srgb, var(--color-primary, #4f46e5) 10%, transparent); color: var(--color-primary, #4f46e5); }
+
+.lds-flashcard__word {
+  font-size:   30px;
+  font-weight: 700;
+  text-align:  center;
+  font-family: ui-serif, Georgia, serif;
+}
+.lds-flashcard__face--front .lds-flashcard__word { color: var(--color-foreground, #0f172a); }
+.lds-flashcard__face--back  .lds-flashcard__word { color: #fff; }
+
+.lds-flashcard__example {
+  font-size:   13px;
+  text-align:  center;
+  font-style:  italic;
+  margin-top:  var(--global-spacing-3, 12px);
+  line-height: 1.5;
+  max-width:   240px;
+}
+.lds-flashcard__face--front .lds-flashcard__example { color: var(--color-muted-fg, #64748b); }
+.lds-flashcard__face--back  .lds-flashcard__example { color: rgba(255,255,255,0.6); }
+
+.lds-flashcard__hint {
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 0.03em;
+  margin-top:     var(--global-spacing-5, 20px);
+  opacity:        0.4;
+}
+.lds-flashcard__face--front .lds-flashcard__hint { color: var(--color-foreground, #0f172a); }
+.lds-flashcard__face--back  .lds-flashcard__hint { color: #fff; }
+
+/* swipe overlays */
+.lds-flashcard__overlay {
+  position:        absolute;
+  inset:           0;
+  z-index:         10;
+  pointer-events:  none;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  border-radius:   var(--global-border-radius-2xl, 20px);
+  transition:      opacity 0.08s;
+}
+.lds-flashcard__overlay--know {
+  background: rgba(34,197,94,0.08);
+  border:     2px solid rgba(34,197,94,0.5);
+}
+.lds-flashcard__overlay--skip {
+  background: rgba(239,68,68,0.08);
+  border:     2px solid rgba(239,68,68,0.5);
+}
+.lds-flashcard__overlay-icon {
+  border-radius: 50%;
+  padding:       12px;
+  display:       flex;
+}
+.lds-flashcard__overlay--know .lds-flashcard__overlay-icon { background: rgba(34,197,94,0.9); }
+.lds-flashcard__overlay--skip .lds-flashcard__overlay-icon { background: rgba(239,68,68,0.9); }
+.lds-flashcard__overlay-label {
+  font-size:      13px;
+  font-weight:    700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top:     8px;
+}
+.lds-flashcard__overlay--know .lds-flashcard__overlay-label { color: #4ade80; }
+.lds-flashcard__overlay--skip .lds-flashcard__overlay-label { color: #fca5a5; }

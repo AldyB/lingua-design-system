@@ -102,9 +102,75 @@ pnpm build         ✅  4/4 packages successful
 
 ## Phase 3 — React Component Library
 **Branch:** `phase-3-react`
-**Status:** ⏳ Pending
+**Date:** 2026-05-12
+**Status:** ✅ Complete
 
-_To be filled in after Phase 3 is executed._
+### What was built
+
+**Tooling:**
+| File | Purpose |
+|---|---|
+| `packages/react/.storybook/main.ts` | Storybook 8 config: react-vite builder, essentials + a11y addons |
+| `packages/react/.storybook/preview.ts` | Imports token CSS, provides light/dark theme toolbar toggle |
+| `packages/react/vitest.config.ts` | Vitest with jsdom + React Testing Library |
+| `packages/react/src/test/setup.ts` | `@testing-library/jest-dom` global matchers |
+| `packages/react/src/styles.css` | All component styles via CSS vars — zero hardcoded colours |
+| `packages/react/src/lib/utils.ts` | `cn()` helper (clsx) |
+
+**Components (21 total):**
+
+| Group | Component | Stories | Tests |
+|---|---|---|---|
+| Primitives | Button | ✅ 9 stories | ✅ 4 tests |
+| Primitives | Badge | ✅ 5 stories | — |
+| Primitives | Pill | ✅ 2 stories | — |
+| Primitives | Tag | ✅ 2 stories | — |
+| Primitives | Avatar | ✅ 3 stories | — |
+| Surfaces | Card + CardTitle + CardContent | ✅ 2 stories | — |
+| Surfaces | Sheet | ✅ 1 story | — |
+| Inputs | TextField | ✅ 3 stories | — |
+| Inputs | Select | ✅ 1 story | — |
+| Inputs | Checkbox | ✅ 3 stories | — |
+| Inputs | RadioGroup | ✅ 1 story | — |
+| Inputs | Switch | ✅ 2 stories | — |
+| Feedback | ProgressBar | ✅ 6 stories | ✅ 3 tests |
+| Feedback | Spinner | ✅ 3 stories | — |
+| Feedback | Toast | ✅ 5 stories | — |
+| Navigation | BottomNav | ✅ 1 story | — |
+| Navigation | TopBar | ✅ 2 stories | — |
+| Domain | Flashcard | ✅ 3 stories | ✅ 4 tests |
+| Domain | CategoryChip | ✅ 1 story | — |
+| Domain | StreakCounter | ✅ 3 stories | — |
+| Domain | MasteryMeter | ✅ 3 stories | — |
+
+**Screens:**
+| Screen | File |
+|---|---|
+| Study Session | `src/screens/StudySession.stories.tsx` — full interactive study flow using only `@lingua/react` |
+
+### Build result
+```
+pnpm build    ✅  4/4 packages successful, 0 TypeScript errors
+pnpm test     ✅  11/11 tests pass (Button 4, ProgressBar 3, Flashcard 4)
+pnpm storybook ✅  Storybook 8.6.18 starts in 645ms at localhost:6006
+```
+
+### Styling approach
+- `src/styles.css` published as `@lingua/react/styles.css`
+- All component colours reference `--color-*` and `--global-*` CSS vars from `@lingua/tokens`
+- Zero hardcoded hex values in any component
+- tsup entry includes `src/styles.css` so it's emitted to `dist/styles.css`
+
+### Decisions made
+- **CSS classes (`.lds-*` prefix)** over CSS-in-JS or Tailwind at the library level — keeps zero runtime overhead and lets consumers override via CSS
+- **Swipe logic in Flashcard** — pointer events ported verbatim from handoff, now prop-driven (`onCorrect`/`onIncorrect` instead of tied to Supabase hooks)
+- **`onSpeak` prop** on Flashcard — defaults to `speechSynthesis` but injectable for testing
+- **Storybook `--ci` flag** — prevents browser auto-open in local dev; theme toolbar switches `document.documentElement.dataset.theme`
+
+### Open items for Phase 3b / future
+- Tests for all components (currently 3 files / 11 tests — critical paths covered)
+- Storybook accessibility stories using `@storybook/addon-a11y`
+- Changeset entry required before merge (per contributing guidelines)
 
 ---
 
