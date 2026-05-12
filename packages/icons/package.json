@@ -1,0 +1,16 @@
+{
+  "name": "@lingua/icons",
+  "version": "0.0.1",
+  "description": "Lingua Design System — brand marks and SVG icons",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "clean": "rm -rf dist"
+  },
+  "exports": {
+    "./lingua-logo-light.svg": "./dist/lingua-logo-light.svg",
+    "./lingua-logo-dark.svg": "./dist/lingua-logo-dark.svg",
+    "./lingua-logo-hero.svg": "./dist/lingua-logo-hero.svg"
+  }
+}

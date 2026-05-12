@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Indigo rounded-square background -->
+  <rect width="32" height="32" rx="7" fill="#4F46E5"/>
+
+  <!-- White bold "L" — centered slightly left to account for tilde -->
+  <text x="6" y="27"
+        font-family="'Helvetica Neue', Helvetica, 'Arial Black', Arial, sans-serif"
+        font-size="23" font-weight="800"
+        fill="#FFFFFF">L</text>
+
+  <!-- Emerald tilde above the L — the key brand differentiator even at small size -->
+  <path d="M 6,9 Q 9.5,5 13,9 Q 16.5,13 20,9"
+        stroke="#34D399" stroke-width="2" fill="none"
+        stroke-linecap="round"/>
+</svg>

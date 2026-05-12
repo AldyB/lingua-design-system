@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingua Design System</title>
+  <link rel="icon" href="./lingua-logo-hero.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./ds-styles.css" />
+</head>
+<body>
+
+<header class="ds-topbar">
+  <img src="./lingua-logo-light.svg" alt="Lingua" height="32" class="ds-logo-light" />
+  <img src="./lingua-logo-dark.svg"  alt="Lingua" height="32" class="ds-logo-dark"  />
+  <nav>
+    <a href="#tokens">Tokens</a>
+    <a href="#components">Components</a>
+    <a href="#patterns">Patterns</a>
+  </nav>
+  <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+</header>
+
+<main class="ds-page">
+  <section class="ds-hero">
+    <h1>Lingua Design System</h1>
+    <p>Tokens are the source of truth. Edit <code>tokens/lingua-tokens.json</code>, run <code>pnpm build</code>, everything regenerates.</p>
+    <p class="ds-badge">Phase 1 — scaffold complete</p>
+  </section>
+
+  <section id="tokens">
+    <h2>Tokens</h2>
+    <p>Full token pipeline ships in <strong>Phase 2</strong> (Style Dictionary). CSS variables, JS exports, Tailwind preset, and Figma-ready JSON will be auto-generated from <code>tokens/lingua-tokens.json</code>.</p>
+  </section>
+
+  <section id="components">
+    <h2>Components</h2>
+    <p>React component library ships in <strong>Phase 3</strong>. Storybook will be embedded here once built.</p>
+  </section>
+
+  <section id="patterns">
+    <h2>Patterns</h2>
+    <p>Sample screens (Flashcard, Study Session) will be added in <strong>Phase 4</strong> after the token pipeline is live.</p>
+  </section>
+</main>
+
+<script>
+  const toggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+  const stored = localStorage.getItem('lingua-theme') || 'light';
+  html.dataset.theme = stored;
+  toggle.textContent = stored === 'dark' ? '☀️' : '🌙';
+  toggle.addEventListener('click', () => {
+    const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+    html.dataset.theme = next;
+    toggle.textContent = next === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('lingua-theme', next);
+  });
+</script>
+
+</body>
+</html>

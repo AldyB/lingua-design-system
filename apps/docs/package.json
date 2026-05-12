@@ -1,0 +1,14 @@
+{
+  "name": "@lingua/docs",
+  "version": "0.0.1",
+  "description": "Lingua Design System — documentation site",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npx serve dist -l 3000",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@lingua/tokens": "workspace:*"
+  }
+}

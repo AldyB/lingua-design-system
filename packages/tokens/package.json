@@ -1,0 +1,28 @@
+{
+  "name": "@lingua/tokens",
+  "version": "0.0.1",
+  "description": "Lingua Design System — design tokens (Style Dictionary build, Phase 2)",
+  "license": "MIT",
+  "private": false,
+  "main": "./dist/js/tokens.js",
+  "module": "./dist/js/tokens.mjs",
+  "types": "./dist/js/tokens.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/js/tokens.mjs",
+      "require": "./dist/js/tokens.js",
+      "types": "./dist/js/tokens.d.ts"
+    },
+    "./css/lingua.light.css": "./dist/css/lingua.light.css",
+    "./css/lingua.dark.css": "./dist/css/lingua.dark.css",
+    "./tailwind": "./dist/tailwind/lingua.tailwind.js",
+    "./figma": "./dist/figma/lingua-figma-tokens.json"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "style-dictionary": "^4.3.3"
+  }
+}

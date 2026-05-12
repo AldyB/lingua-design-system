@@ -1,0 +1,31 @@
+{
+  "name": "lingua-design-system",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Lingua Design System — monorepo root",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  },
+  "packageManager": "pnpm@11.1.1",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "tokens:build": "pnpm --filter @lingua/tokens build",
+    "storybook": "pnpm --filter @lingua/react storybook",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.3",
+    "@changesets/cli": "^2.27.12"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@bundled-es-modules/glob",
+      "esbuild",
+      "style-dictionary"
+    ]
+  }
+}

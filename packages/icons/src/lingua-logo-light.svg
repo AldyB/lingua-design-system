@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 90" width="320" height="90">
+  <rect width="320" height="90" fill="#ffffff"/>
+
+  <!-- Emerald tilde accent floating above the "L" -->
+  <path d="M 14,20 Q 24,4 38,16 Q 52,28 66,14"
+        stroke="#10B981" stroke-width="3.8" fill="none"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- "Lingua" wordmark — bold, indigo -->
+  <text x="16" y="72"
+        font-family="'Helvetica Neue', Helvetica, 'Arial Black', Arial, sans-serif"
+        font-size="58" font-weight="800"
+        fill="#4F46E5"
+        letter-spacing="-1.5">Lingua</text>
+
+  <!-- Subtle emerald dot — punctuates the brand with energy -->
+  <circle cx="302" cy="72" r="5" fill="#10B981"/>
+</svg>
