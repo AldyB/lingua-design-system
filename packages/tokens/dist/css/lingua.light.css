@@ -1,0 +1,117 @@
+/* @lingua/tokens — light theme */
+/* Auto-generated. Edit tokens/lingua-tokens.json then run: pnpm tokens:build */
+
+:root {
+  /* ─── Semantic (light) ─── */
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-primary: #4f46e5;
+  --color-primary-fg: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-fg: #1e293b;
+  --color-muted: #f1f5f9;
+  --color-muted-fg: #64748b;
+  --color-accent: #eef2ff;
+  --color-accent-fg: #4338ca;
+  --color-destructive: #ef4444;
+  --color-destructive-fg: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #818cf8;
+
+  /* ─── Global primitives ─── */
+  --global-color-primary-50: #eef2ff;
+  --global-color-primary-100: #e0e7ff;
+  --global-color-primary-200: #c7d2fe;
+  --global-color-primary-300: #a5b4fc;
+  --global-color-primary-400: #818cf8;
+  --global-color-primary-500: #6366f1;
+  --global-color-primary-600: #4f46e5;
+  --global-color-primary-700: #4338ca;
+  --global-color-primary-800: #3730a3;
+  --global-color-primary-900: #312e81;
+  --global-color-primary-950: #1e1b4b;
+  --global-color-neutral-0: #ffffff;
+  --global-color-neutral-50: #f8fafc;
+  --global-color-neutral-100: #f1f5f9;
+  --global-color-neutral-200: #e2e8f0;
+  --global-color-neutral-300: #cbd5e1;
+  --global-color-neutral-400: #94a3b8;
+  --global-color-neutral-500: #64748b;
+  --global-color-neutral-600: #475569;
+  --global-color-neutral-700: #334155;
+  --global-color-neutral-800: #1e293b;
+  --global-color-neutral-900: #0f172a;
+  --global-color-neutral-950: #020617;
+  --global-color-success-50: #f0fdf4;
+  --global-color-success-500: #22c55e;
+  --global-color-success-600: #16a34a;
+  --global-color-error-50: #fef2f2;
+  --global-color-error-500: #ef4444;
+  --global-color-error-600: #dc2626;
+  --global-color-warning-50: #fffbeb;
+  --global-color-warning-500: #f59e0b;
+  --global-spacing-0: 0px;
+  --global-spacing-1: 4px;
+  --global-spacing-2: 8px;
+  --global-spacing-3: 12px;
+  --global-spacing-4: 16px;
+  --global-spacing-5: 20px;
+  --global-spacing-6: 24px;
+  --global-spacing-8: 32px;
+  --global-spacing-10: 40px;
+  --global-spacing-12: 48px;
+  --global-spacing-16: 64px;
+  --global-spacing-20: 80px;
+  --global-border-radius-none: 0px;
+  --global-border-radius-sm: 4px;
+  --global-border-radius-md: 8px;
+  --global-border-radius-lg: 12px;
+  --global-border-radius-xl: 16px;
+  --global-border-radius-2xl: 20px;
+  --global-border-radius-3xl: 24px;
+  --global-border-radius-full: 9999px;
+  --global-font-size-xs: 12px;
+  --global-font-size-sm: 14px;
+  --global-font-size-base: 16px;
+  --global-font-size-lg: 18px;
+  --global-font-size-xl: 20px;
+  --global-font-size-2xl: 24px;
+  --global-font-size-3xl: 30px;
+  --global-font-size-4xl: 36px;
+  --global-font-family-sans: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --global-font-family-serif: ui-serif, Georgia, Cambria, serif;
+  --global-font-family-mono: ui-monospace, SFMono-Regular, monospace;
+  --global-font-weight-normal: 400;
+  --global-font-weight-medium: 500;
+  --global-font-weight-semibold: 600;
+  --global-font-weight-bold: 700;
+  --global-line-height-tight: 1.25;
+  --global-line-height-snug: 1.375;
+  --global-line-height-normal: 1.5;
+  --global-line-height-relaxed: 1.625;
+  --global-shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --global-shadow-md: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+  --global-shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --global-shadow-card: 0 8px 32px -4px rgba(0,0,0,0.25);
+  --global-motion-duration-fast: 150ms;
+  --global-motion-duration-normal: 250ms;
+  --global-motion-duration-slow: 380ms;
+  --global-motion-duration-flip: 500ms;
+  --global-motion-easing-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --global-motion-easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --global-motion-easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --global-motion-easing-swipe: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* ─── Category colours ─── */
+  --cat-general: #6366f1;
+  --cat-food: #f59e0b;
+  --cat-travel: #06b6d4;
+  --cat-nature: #22c55e;
+  --cat-people: #ec4899;
+  --cat-work: #8b5cf6;
+  --cat-home: #f97316;
+  --cat-health: #14b8a6;
+}

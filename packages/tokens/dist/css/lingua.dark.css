@@ -1,0 +1,22 @@
+/* @lingua/tokens — dark theme */
+/* Auto-generated. Edit tokens/lingua-tokens.json then run: pnpm tokens:build */
+
+[data-theme="dark"] {
+  --color-background: #020617;
+  --color-foreground: #f8fafc;
+  --color-card: #0f172a;
+  --color-card-foreground: #f8fafc;
+  --color-primary: #818cf8;
+  --color-primary-fg: #020617;
+  --color-secondary: #1e293b;
+  --color-secondary-fg: #f8fafc;
+  --color-muted: #1e293b;
+  --color-muted-fg: #94a3b8;
+  --color-accent: #312e81;
+  --color-accent-fg: #a5b4fc;
+  --color-destructive: #dc2626;
+  --color-destructive-fg: #f8fafc;
+  --color-border: #1e293b;
+  --color-input: #1e293b;
+  --color-ring: #4f46e5;
+}

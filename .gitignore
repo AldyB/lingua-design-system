@@ -1,5 +1,4 @@
 node_modules/
-dist/
 .turbo/
 .cache/
 *.local
@@ -8,3 +7,8 @@ dist/
 coverage/
 storybook-static/
 *.tsbuildinfo
+
+# dist is gitignored for most packages — only packages/tokens/dist is committed
+# (CI checks that it matches the source with git diff --exit-code)
+dist/
+!packages/tokens/dist/

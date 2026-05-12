@@ -51,9 +51,52 @@ pnpm build    ✅  4/4 tasks successful (tokens → icons → react → docs)
 
 ## Phase 2 — Token Pipeline (Style Dictionary)
 **Branch:** `phase-2-tokens`
-**Status:** 🔜 Next
+**Date:** 2026-05-12
+**Status:** ✅ Complete
 
-_To be filled in after Phase 2 is executed._
+### What was built
+
+| Path | Description |
+|---|---|
+| `packages/tokens/build.mjs` | Full Style Dictionary v4 build script — replaces the Phase 1 stub entirely. Reads `tokens/lingua-tokens.json` and emits all 5 outputs. |
+| `packages/tokens/transforms/shadow.mjs` | Custom SD transform `lingua/shadow-css`: converts `[{x,y,blur,spread,color}]` boxShadow arrays → single `box-shadow` CSS string. |
+| `packages/tokens/dist/css/lingua.light.css` | `:root` block with 3 sections: semantic light vars (`--color-primary` etc.), global primitives (`--global-color-primary-50` etc.), category colours (`--cat-food` etc.). All references resolved to concrete hex values. |
+| `packages/tokens/dist/css/lingua.dark.css` | `[data-theme="dark"]` block overriding the semantic vars for dark mode. |
+| `packages/tokens/dist/js/tokens.{mjs,js,d.ts}` | Typed ES module + CJS export. Shape: `{ global, light, dark }` — each key maps token paths to `{ value, type, cssVar }`. Also exports `cssVars` convenience map. |
+| `packages/tokens/dist/tailwind/lingua.tailwind.js` | Tailwind CSS preset: `theme.extend.{ colors, fontFamily, fontSize, spacing, borderRadius, boxShadow, fontWeight, lineHeight }` — all values derived from global tokens. |
+| `packages/tokens/dist/figma/lingua-figma-tokens.json` | Full Tokens Studio JSON with all `{reference}` values resolved to concrete hex/string. Ready for Figma Variables import in Phase 5. |
+| `apps/docs/index.html` | Upgraded to load `lingua.light.css` + `lingua.dark.css` from `@lingua/tokens`. Added live swatch grid (semantic + global palette), spacing scale display. |
+| `apps/docs/ds-styles.css` | Stripped all hardcoded `:root` colour vars — now purely structural (layout, typography, component shells). All fills reference `--color-*` / `--global-color-*` vars from token CSS. |
+| `apps/docs/scripts/build.mjs` | Now copies `packages/tokens/dist/css/*.css` and `packages/icons/dist/*.svg` into `apps/docs/dist/` before the static files. |
+| `.gitignore` | Added `!packages/tokens/dist/` exception — token dist IS committed as a snapshot for the CI diff check. |
+| `.github/workflows/tokens.yml` | Enabled `git diff --exit-code packages/tokens/dist` check — PRs that forget to rebuild fail CI. |
+
+### Build result
+```
+pnpm tokens:build  ✅  5/5 outputs, zero warnings
+pnpm build         ✅  4/4 packages successful
+```
+
+### Custom transforms registered
+| Name | Type | Effect |
+|---|---|---|
+| `lingua/name-unique` | `name` | Full path → kebab slug — prevents SD collision warnings |
+| `lingua/shadow-css` | `value` | boxShadow array → CSS `box-shadow` string |
+
+### CSS variable naming convention
+| Token set | Example path | CSS var |
+|---|---|---|
+| Semantic light/dark | `light.color.primaryFg` | `--color-primary-fg` |
+| Global primitives | `global.color.primary.600` | `--global-color-primary-600` |
+| Category colours | `global.color.category.food` | `--cat-food` |
+| Spacing | `global.spacing.4` | `--global-spacing-4` |
+| Shadow | `global.shadow.card` | `--global-shadow-card` |
+
+### Decisions made
+- **Style Dictionary v4 with custom formats** — using pure custom `lingua/*` formats instead of built-in `css/variables` gives full control over selectors, naming, and section grouping without fighting SD's defaults.
+- **`packages/tokens/dist/` committed** — keeps the snapshot in the repo so CI can diff it. Other `dist/` folders remain gitignored.
+- **`type: "module"` added to `packages/tokens/package.json`** — required for ESM `import` in `build.mjs`.
+- **Shadow transform is lossless** — the `spread` value is included in the CSS string; Figma JSON keeps the original array structure.
 
 ---
 

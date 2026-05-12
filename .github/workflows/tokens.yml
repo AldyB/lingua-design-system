@@ -28,6 +28,7 @@ jobs:
       - name: Build tokens
         run: pnpm tokens:build
 
-      # Phase 2: uncomment to enforce that dist is always committed
-      # - name: Fail if dist is stale
-      #   run: git diff --exit-code packages/tokens/dist
+      - name: Fail if dist is stale
+        run: |
+          git diff --exit-code packages/tokens/dist || \
+            (echo "::error::packages/tokens/dist is stale. Run 'pnpm tokens:build' and commit the result." && exit 1)
