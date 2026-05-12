@@ -1,0 +1,7 @@
+{
+  "name": "@lingua/figma-plugin",
+  "version": "0.1.0",
+  "description": "Lingua DS — Figma Component Builder plugin",
+  "private": true,
+  "license": "MIT"
+}

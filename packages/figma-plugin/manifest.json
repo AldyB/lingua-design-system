@@ -1,0 +1,9 @@
+{
+  "name": "Lingua DS — Component Builder",
+  "id": "lingua-ds-component-builder",
+  "api": "1.0.0",
+  "main": "plugin/code.js",
+  "ui": "plugin/ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
+}

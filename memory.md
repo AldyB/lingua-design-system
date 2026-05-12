@@ -257,7 +257,51 @@ Values      : 120  (34 VARIABLE_ALIAS + 39 COLOR + 40 FLOAT + 7 STRING)
 ---
 
 ## Phase 6 — Figma Components
-**Status:** ⏳ Pending
+**Branch:** `phase-6-figma-components`
+**Date:** 2026-05-12
+**Status:** ✅ Complete
+
+### What was built
+
+| Path | Description |
+|---|---|
+| `packages/figma-plugin/manifest.json` | Figma plugin manifest — install via Plugins → Development → Import from manifest |
+| `packages/figma-plugin/plugin/ui.html` | Plugin UI panel: progress log + "Build all components" button |
+| `packages/figma-plugin/plugin/code.js` | Plugin main thread: creates all 21 components as ComponentSets using Phase 5 Variables. ~600 lines. |
+| `docs/figma-components.md` | Setup guide: install plugin, run it, verify light/dark switching, troubleshoot |
+
+### Components built by the plugin
+
+| Group | Components | Variants |
+|---|---|---|
+| Primitives | Button, Badge, Pill, Tag, Avatar | 15 + 5 + 1 + 2 + 3 = 26 |
+| Surfaces | Card, Sheet | 2 + 1 = 3 |
+| Inputs | TextField, Select, Checkbox, RadioGroup, Switch | 3+1+3+1+2 = 10 |
+| Feedback | ProgressBar, Spinner, Toast | 3+3+4 = 10 |
+| Navigation | BottomNav, TopBar | 1+1 = 2 |
+| Domain | Flashcard, CategoryChip, StreakCounter, MasteryMeter | 3+8+3+1 = 15 |
+
+**Total: 21 component sets, ~80 variant components**
+
+### Design rules enforced
+- Every fill/stroke → Semantic Color variable (not palette or hex)
+- Every corner radius → Size `radius/*` variable
+- Every padding/gap → Size `spacing/*` variable
+- Every font size → Size `fontSize/*` variable
+- Auto-layout on all components
+- Storybook story URL in every component description
+
+### Variable binding
+- Fills use `applyFill(node, 'primary')` → binds to 🌗 Semantic Color `primary`
+- Palette colours only used for CategoryChip dot fills (where category-specific colour is needed)
+- Switching a frame Light→Dark updates all fills via variable aliases (no local overrides)
+
+### How to run
+```bash
+# In Figma file with Phase 5 Variables:
+# Plugins → Development → Import from manifest → packages/figma-plugin/manifest.json
+# Then: Plugins → Development → Lingua DS — Component Builder → ⚡ Build all components
+```
 
 ---
 
