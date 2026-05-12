@@ -1,22 +1,25 @@
-name: Deploy Docs
+name: Deploy Docs to GitHub Pages
 
 on:
   push:
     branches: [main]
+  # Allow manual trigger from the Actions tab
+  workflow_dispatch:
 
-# Sets permissions for GitHub Pages deployment
+# Required for GitHub Pages OIDC deployment
 permissions:
   contents: read
-  pages: write
+  pages:    write
   id-token: write
 
+# Only one concurrent deployment; cancel in-flight runs on the same branch
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: Build docs
+    name: Build (tokens → Storybook → docs)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,16 +36,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build tokens (Phase 2+)
+      # Step 1: Rebuild token pipeline (CSS, JS, Tailwind, Figma JSON)
+      - name: Build @lingua/tokens
         run: pnpm tokens:build
 
-      - name: Build docs
+      # Verify dist is up to date (same check as tokens.yml)
+      - name: Assert token dist is not stale
+        run: |
+          git diff --exit-code packages/tokens/dist || \
+            (echo "::error::packages/tokens/dist is stale. Commit the build output." && exit 1)
+
+      # Step 2: Build Storybook static site
+      - name: Build Storybook (@lingua/react)
+        run: pnpm --filter @lingua/react build-storybook
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+
+      # Step 3: Build docs (copies tokens CSS, icons, Storybook, static files)
+      - name: Build @lingua/docs
         run: pnpm --filter @lingua/docs build
 
-      # Phase 3+: uncomment after Storybook is set up
-      # - name: Build Storybook
-      #   run: pnpm --filter @lingua/react build-storybook
-
+      # Step 4: Upload the assembled dist/ to GitHub Pages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

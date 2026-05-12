@@ -1,13 +1,14 @@
 /*
  * Lingua Design System — docs layout stylesheet
  *
- * Colour variables are NOT defined here.
- * They come from @lingua/tokens:
- *   lingua.light.css  → :root { --color-* }
- *   lingua.dark.css   → [data-theme="dark"] { --color-* }
+ * Phase 4: colour variables come from @lingua/tokens via these imports,
+ * resolved at build time by the docs build script (apps/docs/scripts/build.mjs):
  *
- * This file is purely structural (layout, typography, spacing, component shells).
- * No hardcoded colour values. All fills reference --color-* / --global-color-* vars.
+ *   @import "@lingua/tokens/css/lingua.light.css";
+ *   @import "@lingua/tokens/css/lingua.dark.css";
+ *
+ * The build copies both files to dist/ and index.html links to them directly.
+ * This is the canonical Phase 4 reference — no hardcoded colour values here.
  */
 
 /* ─── Non-colour tokens (radius, shadow, font, sizing) ────────────────────── */
@@ -178,4 +179,131 @@ code {
 .ds-spacing__val {
   font-size: 12px;
   color:     var(--color-muted-fg);
+}
+
+/* ─── Quick cards (overview page) ───────────────────────────────────────── */
+.ds-quick-card {
+  display:        flex;
+  align-items:    flex-start;
+  gap:            16px;
+  padding:        20px;
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-xl);
+  background:     var(--color-card);
+  text-decoration: none;
+  color:          inherit;
+  transition:     border-color 0.15s, box-shadow 0.15s;
+}
+.ds-quick-card:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+  box-shadow:   0 4px 16px -4px rgba(0,0,0,0.10);
+}
+.ds-quick-card__icon  { font-size: 28px; flex-shrink: 0; }
+.ds-quick-card__title { font-size: 15px; font-weight: 700; color: var(--color-foreground); margin-bottom: 4px; }
+.ds-quick-card__desc  { font-size: 13px; color: var(--color-muted-fg); line-height: 1.5; }
+
+/* ─── Phase list (overview page) ────────────────────────────────────────── */
+.ds-phase {
+  padding:       10px 16px;
+  border-radius: var(--radius-lg);
+  font-size:     14px;
+  color:         var(--color-muted-fg);
+  background:    var(--color-muted);
+  border:        1px solid var(--color-border);
+}
+.ds-phase--done {
+  color:      var(--color-foreground);
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-card));
+  border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+/* ─── Components page (Storybook iframe) ────────────────────────────────── */
+.ds-components-page {
+  display:        flex;
+  flex-direction: column;
+  height:         100vh;
+  overflow:       hidden;
+}
+.ds-components-page .ds-topbar { flex-shrink: 0; }
+
+.ds-sb-iframe {
+  flex:   1;
+  width:  100%;
+  border: none;
+  display: block;
+}
+
+.ds-sb-fallback {
+  flex:            1;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             16px;
+  text-align:      center;
+  padding:         48px 24px;
+  color:           var(--color-muted-fg);
+}
+.ds-sb-fallback__icon { font-size: 48px; }
+.ds-sb-fallback h2 { font-size: 22px; color: var(--color-foreground); }
+.ds-sb-fallback pre {
+  background:    var(--color-muted);
+  padding:       12px 20px;
+  border-radius: var(--radius-lg);
+  font-size:     13px;
+  color:         var(--color-foreground);
+  text-align:    left;
+}
+
+/* ─── Explorer page (Babel-in-browser) ──────────────────────────────────── */
+.ds-explorer { max-width: var(--page-max-w); margin: 0 auto; padding: 48px 24px 96px; }
+.ds-explorer section { margin-bottom: 56px; }
+.ds-explorer h2 { font-family: var(--font-serif); font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+.ds-explorer .ds-section-desc { font-size: 14px; color: var(--color-muted-fg); margin-bottom: 20px; max-width: 520px; }
+
+.ds-token-grid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap:                   12px;
+}
+.ds-token-card {
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow:      hidden;
+  background:    var(--color-card);
+}
+.ds-token-card__swatch { height: 56px; }
+.ds-token-card__body   { padding: 8px 10px; }
+.ds-token-card__var    { font-size: 11px; color: var(--color-muted-fg); word-break: break-all; line-height: 1.3; }
+.ds-token-card__val    { font-size: 11px; color: var(--color-foreground); font-weight: 600; margin-top: 2px; }
+
+.ds-type-scale { display: flex; flex-direction: column; gap: 12px; }
+.ds-type-row   { display: flex; align-items: baseline; gap: 16px; }
+.ds-type-row__label { min-width: 56px; font-size: 12px; color: var(--color-muted-fg); }
+.ds-type-row__sample { color: var(--color-foreground); }
+
+.ds-component-grid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap:                   12px;
+}
+.ds-component-card {
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding:       16px;
+  background:    var(--color-card);
+  display:       flex;
+  flex-direction: column;
+  gap:           8px;
+}
+.ds-component-card__name { font-size: 14px; font-weight: 600; color: var(--color-foreground); }
+.ds-component-card__path { font-size: 11px; color: var(--color-muted-fg); font-family: monospace; }
+.ds-component-card__badge {
+  align-self:    flex-start;
+  padding:       2px 8px;
+  border-radius: 99px;
+  font-size:     11px;
+  font-weight:   600;
+  background:    color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color:         var(--color-primary);
 }

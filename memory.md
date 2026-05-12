@@ -176,7 +176,37 @@ pnpm storybook ✅  Storybook 8.6.18 starts in 645ms at localhost:6006
 
 ## Phase 4 — Docs on GitHub Pages
 **Branch:** `phase-4-docs`
-**Status:** ⏳ Pending
+**Date:** 2026-05-12
+**Status:** ✅ Complete
+
+### What was built
+
+| Path | Description |
+|---|---|
+| `apps/docs/ds-styles.css` | Phase 4 comment header documenting the `@import "@lingua/tokens/css/lingua.light.css"` intent; added `.ds-quick-card`, `.ds-phase`, `.ds-components-page`, `.ds-explorer`, `.ds-token-card`, `.ds-type-*` and `.ds-component-*` styles. |
+| `apps/docs/ds-components.jsx` | **Babel-in-browser component** — reads `window.LDS` (set by `tokens-export.js`). Renders: semantic palette, global palette, typography scale, spacing, shadows, component registry. Colour swatches are click-to-copy CSS var names. |
+| `apps/docs/explorer.html` | Page hosting `ds-components.jsx` via `<script type="text/babel">`. Loads React + Babel + `tokens-export.js` from CDN/dist. Full nav + theme toggle. |
+| `apps/docs/components/index.html` | Storybook iframe page. Probes `../storybook/index.html` with a `HEAD` request; loads the iframe if built, shows helpful fallback with local dev instructions if not. Propagates theme to Storybook via `postMessage`. |
+| `apps/docs/index.html` | Updated: proper nav links to `/explorer.html` and `/components/`. Phase tracker section. Quick-link cards. Packages table. Inline `@import` comment in the CSS link block. |
+| `apps/docs/scripts/build.mjs` | Phase 4 build: tokens CSS → icons → `tokens-export.js` (dynamic-imports `tokens.mjs`, writes `window.LDS`) → static docs → `components/` page → Storybook static copy (if built). |
+| `apps/docs/package.json` | Added `"type": "module"` for ESM dynamic import in build script. |
+| `.github/workflows/docs.yml` | Full pipeline: install → `pnpm tokens:build` → assert dist not stale → `pnpm build-storybook` → `pnpm --filter @lingua/docs build` → upload Pages artifact → deploy. Concurrency: one deploy per ref, cancel-in-progress. |
+| `DECISIONS.md` | Answers to the six §3 decisions: visibility (private→public at v0.1), registry (GitHub Packages→npm at v1), Figma plan (Professional required for Phase 5), hosting (GitHub Pages), versioning (batched weekly), license (MIT). |
+
+### Build result
+```
+pnpm build   ✅  4/4 packages successful
+dist/        ✅  12 files — index.html, explorer.html, components/index.html,
+                            lingua.light/dark.css, ds-styles.css, ds-components.jsx,
+                            tokens-export.js (124 cssVar entries), 3 SVGs
+Storybook    ℹ   Skipped locally; CI runs pnpm build-storybook before pnpm build
+```
+
+### Decisions made
+- **`tokens-export.js`** — generates `window.LDS` via dynamic ESM import of `packages/tokens/dist/js/tokens.mjs`. This keeps the Babel showcase in sync with `@lingua/tokens` output automatically on every build.
+- **Storybook iframe probe** — `components/index.html` uses `fetch(url, {method:'HEAD'})` to detect whether the Storybook build exists before rendering the iframe. Prevents a broken empty frame in local dev.
+- **`ds-components.jsx` as "view source" artifact** — intentionally runs Babel-in-browser so developers can open DevTools, click "Sources", and read the raw JSX without any bundler step.
+- **DECISIONS.md** — Locked the six §3 decisions so Phase 5+ agents don't have to ask.
 
 ---
 

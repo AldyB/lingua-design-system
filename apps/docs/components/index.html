@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Components — Lingua Design System</title>
+  <link rel="icon"       href="../lingua-logo-hero.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../lingua.light.css" />
+  <link rel="stylesheet" href="../lingua.dark.css" />
+  <link rel="stylesheet" href="../ds-styles.css" />
+</head>
+<body class="ds-components-page">
+
+<header class="ds-topbar">
+  <a href="../index.html" style="display:flex;align-items:center;">
+    <img src="../lingua-logo-light.svg" alt="Lingua" height="28" class="ds-logo-light" />
+    <img src="../lingua-logo-dark.svg"  alt="Lingua" height="28" class="ds-logo-dark"  />
+  </a>
+  <nav>
+    <a href="../index.html">Overview</a>
+    <a href="../explorer.html">Tokens</a>
+    <a href="./index.html" aria-current="page">Components</a>
+  </nav>
+  <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+</header>
+
+<main id="sb-container" style="flex:1;display:flex;flex-direction:column;">
+  <!-- Storybook iframe is injected by the script below once we detect the build exists -->
+</main>
+
+<script>
+  // ── Theme toggle ────────────────────────────────────────────────────────────
+  const toggle = document.getElementById('theme-toggle');
+  const html   = document.documentElement;
+  const stored = localStorage.getItem('lingua-theme') || 'light';
+  html.dataset.theme = stored;
+  toggle.textContent = stored === 'dark' ? '☀️' : '🌙';
+  toggle.addEventListener('click', () => {
+    const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+    html.dataset.theme  = next;
+    toggle.textContent  = next === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('lingua-theme', next);
+    // Propagate theme to the Storybook iframe via postMessage
+    const iframe = document.getElementById('sb-frame');
+    if (iframe) {
+      iframe.contentWindow?.postMessage({ type: 'SET_GLOBALS', payload: { globals: { theme: next } } }, '*');
+    }
+  });
+
+  // ── Load Storybook iframe (if built) or show fallback ───────────────────────
+  const sbUrl = '../storybook/index.html';
+  const container = document.getElementById('sb-container');
+
+  function loadStorybook() {
+    const iframe = document.createElement('iframe');
+    iframe.id            = 'sb-frame';
+    iframe.className     = 'ds-sb-iframe';
+    iframe.src           = sbUrl;
+    iframe.title         = 'Lingua Design System — Storybook';
+    iframe.allow         = 'clipboard-write';
+    // Pass current theme once loaded
+    iframe.addEventListener('load', () => {
+      iframe.contentWindow?.postMessage(
+        { type: 'SET_GLOBALS', payload: { globals: { theme: html.dataset.theme } } },
+        '*'
+      );
+    });
+    container.appendChild(iframe);
+  }
+
+  function showFallback() {
+    container.innerHTML = `
+      <div class="ds-sb-fallback">
+        <div class="ds-sb-fallback__icon">📦</div>
+        <h2>Storybook not built yet</h2>
+        <p style="max-width:480px;margin:0 auto;line-height:1.6;">
+          Run the command below to build Storybook locally, or merge to <code>main</code>
+          to have CI build and deploy it automatically via GitHub Pages.
+        </p>
+        <pre>cd packages/react\npnpm build-storybook</pre>
+        <p style="font-size:13px;">
+          Or start the dev server for live editing:
+        </p>
+        <pre>pnpm storybook</pre>
+        <a href="http://localhost:6006" target="_blank" rel="noopener"
+           style="padding:10px 24px;background:var(--color-primary);color:var(--color-primary-fg);border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block;margin-top:8px;">
+          Open localhost:6006 ↗
+        </a>
+      </div>
+    `;
+  }
+
+  // Probe for the Storybook build with a HEAD request
+  fetch(sbUrl, { method: 'HEAD' })
+    .then(r => r.ok ? loadStorybook() : showFallback())
+    .catch(() => showFallback());
+</script>
+
+</body>
+</html>

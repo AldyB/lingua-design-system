@@ -1,8 +1,9 @@
 {
   "name": "@lingua/docs",
-  "version": "0.0.1",
-  "description": "Lingua Design System — documentation site",
+  "version": "0.1.0",
+  "description": "Lingua Design System — documentation site (GitHub Pages)",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "npx serve dist -l 3000",
