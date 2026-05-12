@@ -20,8 +20,11 @@
     "./figma":                 "./dist/figma/lingua-figma-tokens.json"
   },
   "scripts": {
-    "build": "node build.mjs",
-    "clean": "rm -rf dist"
+    "build":          "node build.mjs",
+    "figma:push":     "node scripts/figma-push.mjs",
+    "figma:dry-run":  "node scripts/figma-push.mjs --dry-run",
+    "figma:payload":  "node scripts/figma-push.mjs --dry-run --save-payload",
+    "clean":          "rm -rf dist"
   },
   "devDependencies": {
     "style-dictionary": "^4.3.3"

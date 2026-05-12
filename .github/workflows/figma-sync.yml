@@ -1,0 +1,54 @@
+name: Sync tokens → Figma Variables
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tokens/lingua-tokens.json"
+      - "packages/tokens/scripts/figma-push.mjs"
+  # Run manually from the Actions tab (e.g. after setting secrets for the first time)
+  workflow_dispatch:
+
+jobs:
+  figma-push:
+    name: Push variables to Figma
+    runs-on: ubuntu-latest
+    # Only run if the secrets are configured.
+    # Set FIGMA_FILE_KEY and FIGMA_ACCESS_TOKEN in:
+    # GitHub repo → Settings → Secrets and variables → Actions
+    if: >
+      vars.FIGMA_SYNC_ENABLED == 'true' ||
+      github.event_name == 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Rebuild tokens to ensure dist is current before pushing
+      - name: Build @lingua/tokens
+        run: pnpm tokens:build
+
+      # Dry-run first — safe to run without secrets, shows payload summary in logs
+      - name: Dry run (payload summary)
+        run: pnpm --filter @lingua/tokens figma:dry-run
+
+      # Live push — only runs if secrets are set
+      - name: Push variables to Figma
+        if: >
+          env.FIGMA_FILE_KEY != '' &&
+          env.FIGMA_ACCESS_TOKEN != ''
+        run: pnpm --filter @lingua/tokens figma:push
+        env:
+          FIGMA_FILE_KEY:    ${{ secrets.FIGMA_FILE_KEY }}
+          FIGMA_ACCESS_TOKEN: ${{ secrets.FIGMA_ACCESS_TOKEN }}

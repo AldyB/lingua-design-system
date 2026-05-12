@@ -212,7 +212,47 @@ Storybook    ℹ   Skipped locally; CI runs pnpm build-storybook before pnpm bui
 
 ## Phase 5 — Figma Variables Import
 **Branch:** `phase-5-figma-import`
-**Status:** ⏳ Pending
+**Date:** 2026-05-12
+**Status:** ✅ Complete
+
+### What was built
+
+| Path | Description |
+|---|---|
+| `packages/tokens/scripts/figma-push.mjs` | **Path B — REST API script.** Reads `tokens/lingua-tokens.json`, builds the full Figma Variables POST payload (5 collections, 6 modes, 103 variables, 120 values), and calls `POST /v1/files/:key/variables`. Supports `--dry-run` and `--save-payload`. |
+| `packages/tokens/package.json` | Added `figma:push`, `figma:dry-run`, `figma:payload` scripts. |
+| `.github/workflows/figma-sync.yml` | CI workflow: triggers on push to `main` when `tokens/lingua-tokens.json` changes. Runs dry-run always; runs live push only when `FIGMA_FILE_KEY` + `FIGMA_ACCESS_TOKEN` secrets are set and `FIGMA_SYNC_ENABLED=true`. |
+| `docs/figma-setup.md` | Full setup guide for Path A (Tokens Studio plugin) and Path B (REST API script). Includes troubleshooting, acceptance criteria, and Phase 7 two-way sync prerequisites. |
+| `DECISIONS.md` | Added §3b — Path B chosen for Phase 5; Path A required for Phase 7 two-way sync. |
+
+### Payload verified (dry run)
+```
+Collections : 5
+Modes       : 6
+Variables   : 103  (39 palette + 17 semantic + 36 size + 8 motion + 3 type)
+Values      : 120  (34 VARIABLE_ALIAS + 39 COLOR + 40 FLOAT + 7 STRING)
+```
+
+### Variable collection structure
+| Collection | Mode(s) | Count | Type |
+|---|---|---|---|
+| 🎨 Lingua / Global Palette | Global | 39 | COLOR (raw hex → {r,g,b,a}) |
+| 🌗 Lingua / Semantic Color | Light + Dark | 17 | COLOR (VARIABLE_ALIAS → palette) |
+| 📐 Lingua / Size | Default | 36 | FLOAT (px stripped) |
+| ✨ Lingua / Motion | Default | 8 | FLOAT (ms) + STRING (easing) |
+| 🔤 Lingua / Typography | Default | 3 | STRING (first font in stack) |
+
+### Decisions made
+- **Path B** implemented now (REST API, fully automated)
+- **Path A** (Tokens Studio plugin) is the Phase 7 prerequisite — documented in `docs/figma-setup.md`
+- Script is **not yet idempotent** — running twice creates duplicates. Phase 7 will add GET→diff→UPDATE.
+- **Shadow tokens excluded** — Figma has no native shadow variable type; they ship as CSS strings in `lingua.light.css`.
+- **Font family** — only the first font in the comma-separated stack is pushed to Figma STRING variable.
+
+### To activate live sync
+1. Set GitHub Secrets: `FIGMA_FILE_KEY`, `FIGMA_ACCESS_TOKEN`
+2. Set GitHub Variable: `FIGMA_SYNC_ENABLED=true`
+3. Trigger `figma-sync.yml` manually from the Actions tab for first push to a fresh Figma file
 
 ---
 

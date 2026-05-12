@@ -44,6 +44,15 @@ pnpm changeset publish
 
 **Decision:** **Figma Professional** plan required for Phase 5 + 6.
 
+## 3b. Figma Sync Path (Phase 5 specific)
+
+**Decision:** **Path B** (REST API Node script) implemented now; **Path A** (Tokens Studio plugin) set up manually alongside.
+
+**Rationale:**
+- Path B is fully automated and requires no Figma UI work. The script `figma-push.mjs` pushes all 103 variables in one command.
+- Path A (Tokens Studio) is optional for Phase 5 but required for Phase 7 (two-way sync). Designers can set it up in parallel using `docs/figma-setup.md`.
+- Phase 7 will add idempotency (GET → diff → UPDATE) so the script is safe to re-run.
+
 **Rationale:** Figma Variables (used for design tokens) and Modes (light/dark) require Professional or above — they are not available on the Free tier. Tokens Studio plugin works on all plans, but its "Create Variables" action requires Professional.
 
 **Blocker for Phase 5:** Confirm Figma plan before starting. If on Free, use Path B (Figma REST API script) instead of Path A (Tokens Studio plugin).
