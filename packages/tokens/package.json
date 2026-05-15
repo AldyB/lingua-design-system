@@ -16,6 +16,7 @@
     },
     "./css/lingua.light.css":  "./dist/css/lingua.light.css",
     "./css/lingua.dark.css":   "./dist/css/lingua.dark.css",
+    "./css/lingua.shadcn.css": "./dist/css/lingua.shadcn.css",
     "./tailwind":              "./dist/tailwind/lingua.tailwind.js",
     "./figma":                 "./dist/figma/lingua-figma-tokens.json"
   },

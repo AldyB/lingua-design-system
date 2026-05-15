@@ -22,6 +22,21 @@
 
 **Decision:** **GitHub Packages** (`@lingua/*` scoped to the repo org), switching to **public npm** at v1.0.
 
+### Phase 8 publish setup (active)
+
+Publishing is automated via `.github/workflows/release.yml` (Changesets):
+
+- Push to `main` with pending changesets → opens "Version Packages" PR
+- Merge that PR → CI publishes new versions to GitHub Packages
+
+Consumer app `.npmrc` (one-time setup):
+```
+@lingua:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+The `release.yml` workflow uses `secrets.GITHUB_TOKEN` (no extra setup needed) since publishes are scoped to the same org as the repo.
+
 **Rationale:**
 - GitHub Packages is free for public packages and requires no extra setup for Renovate/Dependabot.
 - The consumer app (`lingua-cards`) is already in the same GitHub org, so no extra auth needed.

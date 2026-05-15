@@ -1,0 +1,54 @@
+/* @lingua/tokens — shadcn/ui-compatible CSS shim */
+/* Auto-generated. Run: pnpm tokens:build */
+/*
+ * Drop-in for consumer apps using shadcn/ui naming convention:
+ *   import "@lingua/tokens/css/lingua.shadcn.css";
+ * Then your existing Tailwind hsl(var(--primary)) usages resolve into
+ * @lingua/tokens values automatically. Bumping a token color = zero app code change.
+ */
+
+@layer base {
+  :root {
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 217 33% 17%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 226 100% 97%;
+  --accent-foreground: 245 58% 51%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 234 89% 74%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+}
+
+  .dark {
+  --background: 229 84% 5%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 11%;
+  --card-foreground: 210 40% 98%;
+  --primary: 234 89% 74%;
+  --primary-foreground: 229 84% 5%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 242 47% 34%;
+  --accent-foreground: 230 94% 82%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 243 75% 59%;
+  --popover: 222 47% 11%;
+  --popover-foreground: 210 40% 98%;
+}
+}

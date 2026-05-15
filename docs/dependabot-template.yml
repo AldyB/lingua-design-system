@@ -1,0 +1,43 @@
+# Dependabot config template for consumer apps using @lingua/*
+# Copy to your consumer repo as .github/dependabot.yml
+
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
+
+    # Group all @lingua/* into a single PR (one approval per week)
+    groups:
+      lingua-design-system:
+        patterns:
+          - "@lingua/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Only auto-PR major bumps separately (require manual review)
+    ignore:
+      - dependency-name: "@lingua/*"
+        update-types: ["version-update:semver-major"]
+
+    # PR labels for visibility
+    labels:
+      - "dependencies"
+      - "design-system"
+
+    # Auto-rebase if the PR falls behind main
+    rebase-strategy: auto
+
+  # GitHub Actions versions
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3

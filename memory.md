@@ -355,4 +355,39 @@ Target: < 5 minutes from Figma edit to live on GitHub Pages.
 
 ## Phase 8 — Connect Downstream Apps
 **Branch:** `phase-8-consumers`
-**Status:** ⏳ Pending
+**Date:** 2026-05-15
+**Status:** ✅ Complete (consumer-side migration is opt-in, run by the app owner)
+
+### What was built
+
+| Path | Description |
+|---|---|
+| `packages/tokens/transforms/shadcn.mjs` | `hexToHslTriplet()` + `SHADCN_NAME_MAP` (semantic→shadcn naming) + `SHADCN_ALIASES` (popover→card etc.). Maps our `--color-primary: #4f46e5` to shadcn's `--primary: 243 75% 59%`. |
+| `packages/tokens/build.mjs` | `buildShadcnShim(raw)` emits `dist/css/lingua.shadcn.css` — drop-in for shadcn/ui consumer apps (lingua-cards uses this naming). |
+| `packages/tokens/package.json` | New export: `"./css/lingua.shadcn.css": "./dist/css/lingua.shadcn.css"` |
+| `.github/dependabot.yml` | Weekly bumps for the DS monorepo's own deps (turbo, storybook, vitest, react, GH Actions). Grouped to limit PR noise. |
+| `.github/workflows/release.yml` | Changesets publish workflow → GitHub Packages. Opens "Version Packages" PR on push to main; publishes when merged. |
+| `docs/consumer-migration.md` | Full migration guide for lingua-cards: 3 paths (shadcn shim, direct import, Tailwind preset only); component swap table; verification test for "zero app-code change" acceptance. |
+| `docs/dependabot-template.yml` | Drop-in `.github/dependabot.yml` for consumer apps — groups all `@lingua/*` into one weekly PR. |
+| `DECISIONS.md` | §2 expanded with Phase 8 publish setup (registry config, .npmrc, GITHUB_TOKEN). |
+
+### Key insight: shadcn/ui shim
+lingua-cards uses shadcn/ui CSS vars (`--primary` in HSL triplet space) — incompatible with `@lingua/tokens` (`--color-primary` in hex). The `lingua.shadcn.css` shim bridges the two:
+- Translates `light.color.primary` → `--primary`
+- Converts hex → HSL triplet (243 75% 59%)
+- Uses `.dark` selector (shadcn) instead of `[data-theme="dark"]`
+
+Result: lingua-cards replaces ~50 lines of hand-written CSS vars with one `@import` line. Token bumps propagate without touching app code.
+
+### Consumer migration (manual — to be run by lingua-cards owner)
+
+Documented in `docs/consumer-migration.md`. Three paths supported:
+1. **Path A — shadcn shim** (recommended for lingua-cards)
+2. **Path B — Direct `@lingua/tokens` CSS import** (fresh apps using DS naming)
+3. **Path C — Tailwind preset only** (apps without CSS vars)
+
+### Acceptance test (manual)
+1. Edit `tokens/lingua-tokens.json` → change a primary colour
+2. Run `pnpm tokens:build`
+3. Refresh consumer app → colour changes everywhere
+4. **App code untouched** ✓

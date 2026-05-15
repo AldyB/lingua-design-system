@@ -14,7 +14,8 @@ import StyleDictionary from 'style-dictionary';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { shadowTransform } from './transforms/shadow.mjs';
+import { shadowTransform }                            from './transforms/shadow.mjs';
+import { hexToHslTriplet, SHADCN_NAME_MAP, SHADCN_ALIASES } from './transforms/shadcn.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_TOKENS = resolve(__dirname, '../../tokens/lingua-tokens.json');
@@ -191,6 +192,64 @@ function formatTailwind({ dictionary }) {
 
 // ─── Figma JSON (reference-resolved, no SD involvement) ──────────────────────
 
+/**
+ * Build a shadcn/ui-compatible CSS shim.
+ *
+ * Maps semantic vars to shadcn names + HSL triplet format:
+ *   --color-primary: #4f46e5    →    --primary: 243 75% 59%
+ *
+ * Consumers using shadcn/ui import this single file alongside their normal
+ * Tailwind setup — Tailwind's hsl(var(--primary)) usages then resolve into
+ * @lingua/tokens values automatically.
+ */
+function buildShadcnShim(raw) {
+  // Resolve light/dark to concrete hex values (using the same resolver)
+  const resolved = resolveDeep(raw, raw);
+
+  function emitBlock(selector, set) {
+    const lines = [`${selector} {`];
+    for (const [tokenKey, entry] of Object.entries(set.color || {})) {
+      // Convert camelCase → kebab (matches our existing convention)
+      const kebab    = tokenKey.replace(/([A-Z])/g, (m) => `-${m.toLowerCase()}`);
+      const shadcn   = SHADCN_NAME_MAP[kebab];
+      if (!shadcn) continue;
+      const hsl = hexToHslTriplet(entry.value);
+      if (!hsl) continue;
+      lines.push(`  --${shadcn}: ${hsl};`);
+    }
+    // Aliases (popover→card, etc.)
+    for (const [alias, source] of Object.entries(SHADCN_ALIASES)) {
+      const sourceToken = Object.entries(set.color || {}).find(([k]) =>
+        k.replace(/([A-Z])/g, m => `-${m.toLowerCase()}`) === source
+      );
+      if (sourceToken) {
+        const hsl = hexToHslTriplet(sourceToken[1].value);
+        if (hsl) lines.push(`  --${alias}: ${hsl};`);
+      }
+    }
+    lines.push('}');
+    return lines.join('\n');
+  }
+
+  return [
+    '/* @lingua/tokens — shadcn/ui-compatible CSS shim */',
+    '/* Auto-generated. Run: pnpm tokens:build */',
+    '/*',
+    ' * Drop-in for consumer apps using shadcn/ui naming convention:',
+    ' *   import "@lingua/tokens/css/lingua.shadcn.css";',
+    ' * Then your existing Tailwind hsl(var(--primary)) usages resolve into',
+    ' * @lingua/tokens values automatically. Bumping a token color = zero app code change.',
+    ' */',
+    '',
+    '@layer base {',
+    emitBlock('  :root', resolved.light),
+    '',
+    emitBlock('  .dark', resolved.dark),
+    '}',
+    '',
+  ].join('\n');
+}
+
 function resolveDeep(node, root) {
   if (typeof node !== 'object' || node === null) return node;
   if (Array.isArray(node)) return node.map(n => resolveDeep(n, root));
@@ -297,9 +356,16 @@ async function build() {
     JSON.stringify(resolveDeep(raw, raw), null, 2) + '\n'
   );
 
+  // ── shadcn/ui-compatible CSS shim (for consumer apps using shadcn) ─────────
+  writeFileSync(
+    resolve(DIST, 'css/lingua.shadcn.css'),
+    buildShadcnShim(raw),
+  );
+
   console.log('✓  @lingua/tokens — Phase 2 build complete');
   console.log('   dist/css/lingua.light.css');
   console.log('   dist/css/lingua.dark.css');
+  console.log('   dist/css/lingua.shadcn.css      (shadcn/ui shim)');
   console.log('   dist/js/tokens.{mjs,js,d.ts}');
   console.log('   dist/tailwind/lingua.tailwind.js');
   console.log('   dist/figma/lingua-figma-tokens.json');

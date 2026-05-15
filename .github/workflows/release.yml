@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Required for Changesets to open release PRs and publish to GitHub Packages
+permissions:
+  contents:      write
+  pull-requests: write
+  packages:      write
+  id-token:      write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release (Changesets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          # Configure npm registry for GitHub Packages (scope = @lingua)
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@lingua'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      # ── Changesets: open release PR or publish ─────────────────────────────
+      # If pending changesets exist:
+      #   → opens/updates a "Version Packages" PR with the version bumps
+      # If the previous release PR was just merged:
+      #   → publishes the new versions to GitHub Packages
+      - name: Create release PR or publish
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset version
+          publish: pnpm changeset publish
+          commit:  "chore: version packages"
+          title:   "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
