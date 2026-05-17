@@ -13,5 +13,5 @@ storybook-static/
 dist/
 !packages/tokens/dist/
 
-# Debug artifact from `pnpm figma:payload` (--save-payload flag) — local-only
-packages/tokens/dist/figma/figma-variables-payload.json
+# Local debug artifacts (e.g. `pnpm figma:payload` writes here)
+.debug/

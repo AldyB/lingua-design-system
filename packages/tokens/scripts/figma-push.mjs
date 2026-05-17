@@ -26,7 +26,7 @@
  *               and CREATE for new. Safe to run on every CI push.
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname }            from 'node:path';
 import { fileURLToPath }               from 'node:url';
 
@@ -523,7 +523,11 @@ console.log('');
 // ─── Save payload (optional debug) ────────────────────────────────────────────
 
 if (SAVE) {
-  const out = resolve(__dirname, '../dist/figma/figma-variables-payload.json');
+  // Write to .debug/ (not dist/) so it never collides with the committed snapshot.
+  // .debug/ is gitignored — see .gitignore.
+  const debugDir = resolve(__dirname, '../.debug');
+  mkdirSync(debugDir, { recursive: true });
+  const out = resolve(debugDir, 'figma-variables-payload.json');
   writeFileSync(out, JSON.stringify(payload, null, 2) + '\n');
   console.log(`Payload saved → ${out}`);
 }
