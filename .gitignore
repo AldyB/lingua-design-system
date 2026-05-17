@@ -12,3 +12,6 @@ storybook-static/
 # (CI checks that it matches the source with git diff --exit-code)
 dist/
 !packages/tokens/dist/
+
+# Local debug artifacts (e.g. `pnpm figma:payload` writes here)
+.debug/
