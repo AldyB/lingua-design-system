@@ -34,9 +34,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Step 1: Rebuild token pipeline (CSS, JS, Tailwind, Figma JSON)
-      - name: Build @lingua/tokens
-        run: pnpm tokens:build
+      # Step 1: Build all packages in dependency order (Turborepo)
+      # @lingua/tokens → @lingua/icons → @lingua/react → @lingua/docs
+      - name: Build all packages
+        run: pnpm build
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
 
       # Verify dist is up to date (same check as tokens.yml)
       - name: Assert token dist is not stale
@@ -44,14 +47,16 @@ jobs:
           git diff --exit-code packages/tokens/dist || \
             (echo "::error::packages/tokens/dist is stale. Commit the build output." && exit 1)
 
-      # Step 2: Build Storybook static site
+      # Step 2: Build Storybook static site (separate command since it's not
+      # part of the standard `pnpm build` pipeline)
       - name: Build Storybook (@lingua/react)
         run: pnpm --filter @lingua/react build-storybook
         env:
           NODE_OPTIONS: --max_old_space_size=4096
 
-      # Step 3: Build docs (copies tokens CSS, icons, Storybook, static files)
-      - name: Build @lingua/docs
+      # Step 3: Rebuild docs now that Storybook static is available
+      # (docs build copies storybook-static/ into dist/storybook/)
+      - name: Rebuild @lingua/docs with Storybook included
         run: pnpm --filter @lingua/docs build
 
       # Step 4: Upload the assembled dist/ to GitHub Pages
