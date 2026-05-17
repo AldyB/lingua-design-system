@@ -216,6 +216,11 @@ code {
   background: color-mix(in srgb, var(--color-primary) 6%, var(--color-card));
   border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
+.ds-phase--blocked {
+  color:        var(--color-foreground);
+  background:   color-mix(in srgb, var(--color-warning, #f59e0b) 8%, var(--color-card));
+  border-color: color-mix(in srgb, var(--color-warning, #f59e0b) 30%, transparent);
+}
 
 /* ─── Components page (Storybook iframe) ────────────────────────────────── */
 .ds-components-page {
