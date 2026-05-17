@@ -4,6 +4,30 @@
 
 ---
 
+## Open items (waiting on CI)
+
+**PR #1 — `chore/post-launch-cleanup`** (opened 2026-05-17)
+- URL: https://github.com/AldyB/lingua-design-system/pull/1
+- Removes the `figma-variables-payload.json` debug artifact + adds `.gitignore` entry
+- **Waiting for CI** — `ci.yml`'s "Validate (tokens · build · test · changeset)" check should run on this PR
+- The changeset check may flag this PR since it touches `packages/tokens/`; if so, run `pnpm changeset --empty` and push the entry
+- Once green, merge as the first PR following the Phase 7 contribution flow
+
+### Pages deployment fixes (already direct-pushed to main this session)
+| Commit | Why direct-pushed (urgent: live site was broken) |
+|---|---|
+| `9aaeb0b` | `fix(ci): remove pnpm version from action-setup` |
+| `90eae64` | `fix(ci): bump Node 20 → 22` (pnpm 11 needs `node:sqlite`) |
+| `a7f72ce` | `fix(release): gate publishing on RELEASE_ENABLED` |
+| `33e03fb` | `fix(docs): declare @lingua/icons dep` |
+| `bc3b0be` | `fix(ci): use 'pnpm build' so @lingua/icons builds before docs` |
+
+Live URL: https://aldyb.github.io/lingua-design-system/ — all 3 logos serving HTTP 200, overview + explorer + components iframe all reachable.
+
+Going forward: all changes go through PRs (PR #1 is the first to follow that pattern).
+
+---
+
 ## Phase 1 — Monorepo Scaffold
 **Branch:** `phase-1-scaffold`
 **Date:** 2026-05-12
