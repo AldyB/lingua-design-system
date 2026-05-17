@@ -44,11 +44,19 @@ for (const f of TOKEN_CSS) {
 
 // ── 2. Brand SVGs ──────────────────────────────────────────────────────────
 let iconCount = 0;
-if (existsSync(ICONS_DIST)) {
-  for (const f of readdirSync(ICONS_DIST).filter(f => f.endsWith('.svg'))) {
-    copyFileSync(resolve(ICONS_DIST, f), resolve(DIST, f));
-    iconCount++;
-  }
+if (!existsSync(ICONS_DIST)) {
+  console.error(`✗  packages/icons/dist is missing — @lingua/icons must build first.`);
+  console.error(`   Run: pnpm --filter @lingua/icons build`);
+  process.exit(1);
+}
+const svgs = readdirSync(ICONS_DIST).filter(f => f.endsWith('.svg'));
+if (svgs.length === 0) {
+  console.error(`✗  packages/icons/dist is empty — no SVGs to deploy.`);
+  process.exit(1);
+}
+for (const f of svgs) {
+  copyFileSync(resolve(ICONS_DIST, f), resolve(DIST, f));
+  iconCount++;
 }
 
 // ── 3. tokens-export.js (window.LDS shim) ─────────────────────────────────

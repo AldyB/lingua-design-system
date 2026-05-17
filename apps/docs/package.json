@@ -10,6 +10,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@lingua/tokens": "workspace:*"
+    "@lingua/tokens": "workspace:*",
+    "@lingua/icons":  "workspace:*"
   }
 }
