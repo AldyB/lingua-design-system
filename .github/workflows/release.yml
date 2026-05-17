@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 # Required for Changesets to open release PRs and publish to GitHub Packages
 permissions:
@@ -19,6 +20,14 @@ jobs:
   release:
     name: Release (Changesets)
     runs-on: ubuntu-latest
+
+    # Phase 8 publishing is opt-in. Set repository variable RELEASE_ENABLED=true
+    # (Settings → Variables → Actions) when packages are ready to publish.
+    # Until then, this job no-ops on every push (won't fail CI).
+    if: >
+      vars.RELEASE_ENABLED == 'true' ||
+      github.event_name == 'workflow_dispatch'
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,9 +39,15 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          # Configure npm registry for GitHub Packages (scope = @lingua)
           registry-url: 'https://npm.pkg.github.com'
           scope: '@lingua'
+
+      # Ensure pnpm sees the same registry + token that setup-node writes.
+      # The scope token is what `pnpm publish` reads.
+      - name: Configure pnpm auth for @lingua scope
+        run: |
+          echo "@lingua:registry=https://npm.pkg.github.com/" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}" >> .npmrc
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -53,5 +68,5 @@ jobs:
           commit:  "chore: version packages"
           title:   "chore: version packages"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

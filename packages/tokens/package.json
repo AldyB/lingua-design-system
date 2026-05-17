@@ -5,6 +5,15 @@
   "license": "MIT",
   "private": false,
   "type": "module",
+  "repository": {
+    "type":      "git",
+    "url":       "https://github.com/AldyB/lingua-design-system.git",
+    "directory": "packages/tokens"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/",
+    "access":   "public"
+  },
   "main": "./dist/js/tokens.js",
   "module": "./dist/js/tokens.mjs",
   "types": "./dist/js/tokens.d.ts",
